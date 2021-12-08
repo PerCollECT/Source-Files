@@ -28,7 +28,6 @@ function addSideNavLinks() {
                 ddLinks.push(
                     $("<a></a>")
                     .attr("onclick", "navLink('" + n.title + "')")
-                    .attr("href", "#")
                     .html(n.title)
                 );
             }

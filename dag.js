@@ -231,15 +231,15 @@ function initGraph() {
       target = d.__data__.target.data;
       if (currentNodeId == source.id) {
         d.setAttribute("stroke-width", "10");
-        d.setAttribute("style", "stroke: rgb(255, 0, 0);");
+        d.setAttribute("style", "stroke: rgb(255, 0, 0); transition: 0.5s");
       }
       else if (currentNodeId == target.id) {
         d.setAttribute("stroke-width", "10");
-        d.setAttribute("style", "stroke: rgb(0, 0, 255);");
+        d.setAttribute("style", "stroke: rgb(0, 0, 255); transition: 0.5s");
       }
       else {
         d.setAttribute("stroke-width", "1.5");
-        d.setAttribute("style", "stroke: rgb(34, 34, 34);");
+        d.setAttribute("style", "stroke: rgb(34, 34, 34); transition: 0.5s");
       }
   });
 }

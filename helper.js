@@ -83,7 +83,7 @@ function addNodeInfos(node, id) {
           let nodeName = getNodeById(e[0].replaceAll(/[\s]/g, "")).title;
           let link = `${getLinkPath()}#${nodeName.replace(/[^A-Z0-9]/ig, "_").toLowerCase()}`;
           let output = [];
-          e[0] = `Reference for influence on <a title='${e[0].replaceAll(/[\s]/g, "")}' href='${link}'>${nodeName}</a>`;
+          e[0] = `Reference for influence on <a title='${e[0].replaceAll(/[\s]/g, "")}' onclick="navLink('${nodeName}')" style="cursor: pointer;">${nodeName}</a>`;
           reference = `<a href='${e[3].replaceAll(/[\s]/g, "")}' target='_blank'>${e[1]+':'+e[2]}</a>`;
           if (e.length > 4) {
             e[1] = `${reference}, ${e[4]}`;
