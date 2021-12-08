@@ -1,0 +1,45 @@
+{
+  "title": "PerCollECT",
+  "description": "Perception Sensor Collaborative Cause and Effect Tree",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "description": "The unique identifier of the node",
+        "type": "string"
+      },
+      "parentIds": {
+        "description": "IDs of all direct parent nodes",
+        "type": "array",
+        "items": {
+	        "type": "string"
+	      },
+	      "uniqueItems": true
+      },
+      "title": {
+        "description": "Very short description of the effect or cause, that will be displayed directly in the visualization",
+        "type": "string"
+      },
+      "decomBlock": {
+        "description": "Associated decomposition block",
+        "type": "string",
+        "enum": ["Emission", "Signal propagation", "Reception", "Pre-processing", "Detection identification", "Feature identification", "Object identification"]
+      },
+      "description": {
+        "description": "Contains a more detailed explanation of the effect or cause",
+        "type": "string"
+      },
+      "references": {
+        "description": "Contains for every parent the first author, the title and the link to the literature item. Optionally a short note about the reference e.q. the page number of interest can be added",
+        "type": "string"
+      },
+      "nodeType": {
+        "description": "The unique identifier of the node",
+        "type": "string",
+        "enum": ["effect", "designParameter", "systemIndependent"]
+      }
+    },
+    "required": [ "id", "parentIds", "title",  "decomBlock", "description", "references", "nodeType"]
+  }
+}
