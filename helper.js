@@ -209,6 +209,7 @@ function addAutoComplete(input) {
         divEntry.addEventListener("click", function () {
           input.value = this.getElementsByTagName("input")[0].value;
           closeAllLists();
+          jumpToSearch();
         });
         divContainer.appendChild(divEntry);
       }
