@@ -59,7 +59,8 @@ function addNodeInfos(node, id) {
     "description",
     "number of parent nodes",
     "number of child nodes",
-    "references"];
+    "references",
+    "scenarioEntity"];
 
   attributesToShow.forEach(function (a) {
     let value = [];
@@ -93,7 +94,22 @@ function addNodeInfos(node, id) {
             e.splice(2, 2);
           }
         });
-        break;      
+        break;
+      case "scenarioEntity":
+        if (node.hasOwnProperty("scenarioEntity")) {
+          input = prepareReferencesInfo(node.scenarioEntity);
+          value[0] = [];
+          value[0][0] = `Exemplary Scenario Entities`;
+          value[0][1] = [];
+          input.forEach(function (e) {
+            if (value[0][1].length > 0){
+              value[0][1] = value[0][1] + `, `
+            }
+            value[0][1] = value[0][1] + `<a href='${e[1]}' target='_blank'>${e[0]}</a>`;
+          });
+          //input.forEach(element => value[0][1] = value[0][1] + `<a href='${element[1]}' target='_blank'>${element[0]}</a>`);
+        }
+        break;
       default:
         value.push([a, node[a].replaceAll("\\n", "<br><br>")]);
     }

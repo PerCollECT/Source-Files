@@ -313,6 +313,7 @@ body {
 
 .content #info_box .info #info_key {
   font-weight: bold;
+  min-width: 300px;
 }
 
 /* tree table  */
