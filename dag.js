@@ -35,12 +35,12 @@ function initGraph() {
       .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
       .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
     const { width, height } = layout(dag);
-    
+    let sizeFactor = width/window.innerWidth
     // --------------------------------
     // This code only handles rendering
     // --------------------------------
     svgSelection = d3.select("svg");
-    svgSelection.attr("viewBox", [0, 0, width, height].join(" "));
+    svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
     
