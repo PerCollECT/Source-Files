@@ -232,6 +232,16 @@ body {
   opacity: 30%;
 }
 
+/*.node #expand{*/
+/*  fill: darkblue;*/
+/*  opacity: 100%;*/
+/*}*/
+
+/*.node #collapse{*/
+/*  fill: darkred;*/
+/*  opacity: 100%;*/
+/*}*/
+
 .node .iText {
   font-size: 18px;
   fill: var(--main-bg);

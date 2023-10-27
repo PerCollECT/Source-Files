@@ -9,10 +9,13 @@ let width = 600, height = 400;
 let maxTextLength = 200;
 let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
+let map = {};
+let currentTree = [];
+let fixedNodes = ["0","1","17","39","50","56","79","81","82","84","102","144"];
 
 // Define the zoom function for the zoomable tree
 var zoom = d3.zoom()
-      .scaleExtent([1, 10])
+      .scaleExtent([1, 20])
       .on('zoom', function(event) {
         graph
             .attr('transform', event.transform);
@@ -28,100 +31,40 @@ const line = d3
 
 function initGraph() {
     // fetch data and render
-    data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
-    dag = d3.dagStratify()(data);
-    layout = d3
-      .sugiyama() // base layout
-      .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
-      .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
-    const { width, height } = layout(dag);
-    let sizeFactor = width/window.innerWidth
-    // --------------------------------
-    // This code only handles rendering
-    // --------------------------------
-    svgSelection = d3.select("svg");
-    svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
-    svgSelection.call(zoom);
-    graph = svgSelection.append("g");
-    
-    defs = graph.append("defs"); // For gradients 
-    
-    // Plot edges
-    graph
-      .append("g")
-      .selectAll("path")
-      .data(dag.links())
-      .enter()
-      .append("path")
-      .attr("d", ({ points }) => line(points))
-      .attr("fill", "none")
-      .attr("stroke-width", 3)
-      .style("stroke", "#222222");
-  
-    // Select nodes
-    nodes = graph
-      .append("g")
-      .selectAll("g")
-      .data(dag.descendants())
-      .enter()
-      .append("g")
-      .attr("class", "node")
-      .attr("transform", ({ x, y }) => `translate(${x}, ${y})`);
-  
-    // Plot nodes
-    nodes
-      .append("rect")
-      .attr("width", nodeWidth)
-      .attr("height", nodeHeight)
-      .attr("rx", function (d) {
-        switch (d.data.nodeType) {
-          case "designParameter":
-            return 40;
-          case "systemIndependent":
-            return 40;
-          default:
-            return 2;
+    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    for(let i=0;i<data.length;i++)
+    {
+        if(data[i]["parentIds"].length === 0)
+        {
+            map[data[i]["id"]] = 1;
+            currentTree.push(data[i]);
+            NodeExpand(data[i]["id"],currentTree,data)
         }
-      })
-      .attr("stroke-width", 1.5)
-      .style("fill", function (d) {
-        switch (d.data.nodeType) {
-          case "designParameter":
-            return "#b4acd2";
-          case "systemIndependent":
-            return "#ace3b5";
-          default:
-            return "#f4f4f9";
+        else{
+            if(map[data[i]["id"]] !== 1)
+            {
+                map[data[i]["id"]] = 0;
+            }
         }
-      })
-      .on("click", onNodeClicked);
-  
-    // Add text to nodes
-    nodes
-      .append("text")
-      .attr("y", nodeHeight / 2)
-      .attr("x", 13)
-      .attr("dy", ".35em")
-      .text((d) => d.data.title)
-      .call(wrapNodeText, maxTextLength)
-      .on("click", onNodeClicked);
-    
-    // Add information icon
-    nodes.append("circle")
-      .attr("class", "iButton")
-      .attr("cx", nodeWidth-20)
-      .attr("cy", 20)
-      .attr("r", 15)
-      .on("mouseover", function () { d3.select(this).attr("r", 20); })
-      .on("mouseout", function () { d3.select(this).attr("r", 15); })
-      .on("click", onNodeInfoClicked);
-
-    nodes.append("text")
-      .attr("class", "iText")
-      .attr("y", 26.5)
-      .attr("x", nodeWidth - 20 - (5 / 2))
-      .html("i");
-  };
+        // if(fixedNodes.includes(data[i]["id"]))
+        // {
+        //     map[data[i]["id"]] = 1;
+        //     currentTree.push(data[i]);
+        // }
+        // else{
+        //     map[data[i]["id"]] = 0;
+        // }
+    }
+    for (let i = 0; i < data.length; i++)
+    {
+        if(map[data[i]["id"]] === 1)
+        {
+            RemoveHiddenParents(data[i]["parentIds"]);
+        }
+    }
+    // currentTree = drawData;
+    drawTree(currentTree);
+}
 
 /**
  * Interface to parse all data starting at
@@ -242,4 +185,243 @@ function initGraph() {
         d.setAttribute("style", "stroke: rgb(34, 34, 34); transition: 0.5s");
       }
   });
+}
+function onNodeExpandClicked(d) {
+    let currentNodeId = d.currentTarget.__data__.data.id;
+    let element = d.currentTarget
+    updateTree(currentNodeId,"expand");
+    element.setAttribute("fill","blue");
+}
+function onNodeCollapseClicked(d) {
+    let currentNodeId = d.currentTarget.__data__.data.id;
+    updateTree(currentNodeId,"collapse");
+}
+function updateTree(currentNodeId,state){
+    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    let drawData = [];
+    if(state === "expand")
+    {
+        NodeExpand(currentNodeId,currentTree,data);
+    }
+    else
+    {
+        NodeCollapse(currentNodeId,currentTree,data);
+    }
+    for (let i = 0; i < data.length; i++)
+    {
+        if(map[data[i]["id"]] === 1)
+        {
+            RemoveHiddenParents(data[i]["parentIds"]);
+        }
+    }
+    drawTree(currentTree);
+}
+
+function drawTree(drawData)
+{
+    dag = d3.dagStratify()(drawData);
+    layout = d3
+        .sugiyama() // base layout
+        .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
+        .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
+    const { width, height } = layout(dag);
+    let sizeFactor = width/window.innerWidth
+
+    // --------------------------------
+    // This code only handles rendering
+    // --------------------------------
+    svgSelection = d3.select("svg");
+    svgSelection.selectAll('*').remove();
+    svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
+    svgSelection.call(zoom);
+    graph = svgSelection.append("g");
+
+    defs = graph.append("defs"); // For gradients
+
+    // Plot edges
+    graph
+        .append("g")
+        .attr("class", "paths-list")
+        .selectAll("path")
+        .data(dag.links())
+        .enter()
+        .append("path")
+        .attr("d", ({ points }) => line(points))
+        .attr("fill", "none")
+        .attr("stroke-width", 3)
+        .style("stroke", "#222222");
+
+    // Select nodes
+    nodes = graph
+        .append("g")
+        .attr("class", "nodes-list")
+        .selectAll("g")
+        .data(dag.descendants())
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", ({ x, y }) => `translate(${x}, ${y})`);
+
+    // Plot nodes
+    nodes
+        .append("rect")
+        .attr("width", nodeWidth)
+        .attr("height", nodeHeight)
+        .attr("rx", function (d) {
+            switch (d.data.nodeType) {
+                case "designParameter":
+                    return 40;
+                case "systemIndependent":
+                    return 40;
+                default:
+                    return 2;
+            }
+        })
+        .attr("stroke-width", 1.5)
+        .style("fill", function (d) {
+            switch (d.data.nodeType) {
+                case "designParameter":
+                    return "#b4acd2";
+                case "systemIndependent":
+                    return "#ace3b5";
+                default:
+                    return "#f4f4f9";
+            }
+        })
+        .on("click", onNodeClicked);
+
+    // Add text to nodes
+    nodes
+        .append("text")
+        .attr("y", nodeHeight / 2)
+        .attr("x", 13)
+        .attr("dy", ".35em")
+        .text((d) => d.data.title)
+        .call(wrapNodeText, maxTextLength)
+        .on("click", onNodeClicked);
+
+    // Add information icon
+    nodes.append("circle")
+        .attr("class", "iButton")
+        .attr("cx", nodeWidth-20)
+        .attr("cy", 20)
+        .attr("r", 15)
+        .on("mouseover", function () { d3.select(this).attr("r", 20); })
+        .on("mouseout", function () { d3.select(this).attr("r", 15); })
+        .on("click", onNodeInfoClicked);
+
+    nodes.append("circle")
+        // .attr("id", "expand")
+        // .attr("class", "iButton")
+        .attr("cx", nodeWidth/2)
+        .attr("cy", nodeHeight)
+        .attr("r", 12)
+        .attr("fill","darkblue")
+        .on("mouseover", function () { d3.select(this).attr("r", 15); })
+        .on("mouseout", function () { d3.select(this).attr("r", 12); })
+        .on("click", onNodeExpandClicked);
+
+    nodes.append("circle")
+        // .attr("id", "collapse")
+        // .attr("class", "iButton")
+        .attr("cx", nodeWidth/2)
+        .attr("cy", 0)
+        .attr("r", 12)
+        .attr("fill","darkred")
+        .on("mouseover", function () { d3.select(this).attr("r", 15); })
+        .on("mouseout", function () { d3.select(this).attr("r", 12); })
+        .on("click", onNodeCollapseClicked);
+
+    nodes.append("text")
+        .attr("class", "iText")
+        .attr("y", 26.5)
+        .attr("x", nodeWidth - 20 - (5 / 2))
+        .html("i");
+}
+
+function NodeExpand(currentNodeId,currentTree,data)
+{
+    for(let i = 0;i<data.length;i++)
+    {
+        if(data[i]["parentIds"].includes(currentNodeId))
+        {
+            // RemoveHiddenParents(data[i]["parentIds"]);
+            if(map[data[i]["id"]] === 1)
+            {
+                for(let j = 0;j<currentTree.length;j++)
+                {
+                    if(currentTree[j]["id"] === data[i]["id"])
+                    {
+                        if(!currentTree[j]["parentIds"].includes(currentNodeId))
+                        {
+                            currentTree[j]["parentIds"].push(currentNodeId);
+                        }
+                        break;
+                    }
+                }
+            }
+            else{
+                map[data[i]["id"]] = 1;
+                currentTree.push(data[i]);
+            }
+        }
+    }
+}
+
+function NodeCollapse(currentNodeId,currentTree,data)
+{
+    let childrenQueue = [];
+    childrenQueue.push(currentNodeId);
+    while(childrenQueue.length !== 0)
+    {
+        for(let i = 0;i<currentTree.length;i++)
+        {
+            for(let j = 0;j<currentTree[i]["parentIds"].length;j++)
+            {
+                if(currentTree[i]["parentIds"][j] === currentNodeId)
+                {
+                    currentTree[i]["parentIds"].splice(j, 1);
+                    if(currentTree[i]["parentIds"].length === 0)
+                    {
+                        childrenQueue.push(currentTree[i]["id"]);
+                        map[currentTree[i]["id"]] = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        childrenQueue.shift();
+        if(childrenQueue.length !== 0)
+        {
+            currentNodeId = childrenQueue[0];
+        }
+    }
+    let itr = 0;
+    while(itr<currentTree.length)
+    {
+        if(map[currentTree[itr]["id"]] === 0)
+        {
+            currentTree.splice(itr, 1);
+        }
+        else{
+            itr++;
+        }
+    }
+}
+
+
+function RemoveHiddenParents(parents)
+{
+    let j = 0;
+    while(j<parents.length)
+    {
+        if(map[parents[j]] === 0)
+        {
+            parents.splice(j, 1);
+        }
+        else
+        {
+            j++;
+        }
+    }
 }
