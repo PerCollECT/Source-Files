@@ -11,7 +11,7 @@ let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
 let map = {};
 let currentTree = [];
-let fixedNodes = ["0","1","17","39","50","56","79","81","82","84","102","144"];
+let zoomTransform;
 
 // Define the zoom function for the zoomable tree
 var zoom = d3.zoom()
@@ -19,6 +19,7 @@ var zoom = d3.zoom()
       .on('zoom', function(event) {
         graph
             .attr('transform', event.transform);
+        zoomTransform = event.transform;
 });
 
 // How to draw edges
@@ -46,14 +47,6 @@ function initGraph() {
                 map[data[i]["id"]] = 0;
             }
         }
-        // if(fixedNodes.includes(data[i]["id"]))
-        // {
-        //     map[data[i]["id"]] = 1;
-        //     currentTree.push(data[i]);
-        // }
-        // else{
-        //     map[data[i]["id"]] = 0;
-        // }
     }
     for (let i = 0; i < data.length; i++)
     {
@@ -62,8 +55,7 @@ function initGraph() {
             RemoveHiddenParents(data[i]["parentIds"]);
         }
     }
-    // currentTree = drawData;
-    drawTree(currentTree);
+    drawTree(currentTree,"init");
 }
 
 /**
@@ -76,9 +68,9 @@ function initGraph() {
   let jsonRootFullPath = (window.location.href.includes("localhost") || window.location.href.includes("127.0.")) ?
   `./${jsonDataFile}` : `${host}${dataDict}${jsonDataFile}`;
 
-  var rawFile = new XMLHttpRequest();
+  let rawFile = new XMLHttpRequest();
   rawFile.open("GET", jsonRootFullPath, false);
-  var allText;
+  let allText;
   rawFile.onreadystatechange = function ()
   {
       if(rawFile.readyState === 4)
@@ -214,10 +206,12 @@ function updateTree(currentNodeId,state){
             RemoveHiddenParents(data[i]["parentIds"]);
         }
     }
-    drawTree(currentTree);
+    drawTree(currentTree,"update");
+    graph
+        .attr('transform', zoomTransform);
 }
 
-function drawTree(drawData)
+function drawTree(drawData,state)
 {
     dag = d3.dagStratify()(drawData);
     layout = d3
