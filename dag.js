@@ -9,7 +9,8 @@ let width = 600, height = 400;
 let maxTextLength = 200;
 let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
-let map = {};
+let shownNodesMap = {};
+let shownNodeChildrenMap = {};
 let currentTree = [];
 let zoomTransform;
 
@@ -37,20 +38,20 @@ function initGraph() {
     {
         if(data[i]["parentIds"].length === 0)
         {
-            map[data[i]["id"]] = 1;
+            shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
             NodeExpand(data[i]["id"],currentTree,data)
         }
         else{
-            if(map[data[i]["id"]] !== 1)
+            if(shownNodesMap[data[i]["id"]] !== 1)
             {
-                map[data[i]["id"]] = 0;
+                shownNodesMap[data[i]["id"]] = 0;
             }
         }
     }
     for (let i = 0; i < data.length; i++)
     {
-        if(map[data[i]["id"]] === 1)
+        if(shownNodesMap[data[i]["id"]] === 1)
         {
             RemoveHiddenParents(data[i]["parentIds"]);
         }
@@ -110,7 +111,8 @@ function initGraph() {
   let node = getNodeByTitle(d.currentTarget.__data__.data.title);
   $("#info_box").empty();
   addNodeInfos(node, "preview");
-  updateGraphPlot(currentNodeId);
+    document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
+    updateGraphPlot(currentNodeId);
 }
 
 /**
@@ -201,7 +203,7 @@ function updateTree(currentNodeId,state){
     }
     for (let i = 0; i < data.length; i++)
     {
-        if(map[data[i]["id"]] === 1)
+        if(shownNodesMap[data[i]["id"]] === 1)
         {
             RemoveHiddenParents(data[i]["parentIds"]);
         }
@@ -303,6 +305,7 @@ function drawTree(drawData,state)
         .on("mouseover", function () { d3.select(this).attr("r", 20); })
         .on("mouseout", function () { d3.select(this).attr("r", 15); })
         .on("click", onNodeInfoClicked);
+    console.log(nodes[0])
 
     nodes.append("circle")
         // .attr("id", "expand")
@@ -340,7 +343,7 @@ function NodeExpand(currentNodeId,currentTree,data)
         if(data[i]["parentIds"].includes(currentNodeId))
         {
             // RemoveHiddenParents(data[i]["parentIds"]);
-            if(map[data[i]["id"]] === 1)
+            if(shownNodesMap[data[i]["id"]] === 1)
             {
                 for(let j = 0;j<currentTree.length;j++)
                 {
@@ -355,7 +358,7 @@ function NodeExpand(currentNodeId,currentTree,data)
                 }
             }
             else{
-                map[data[i]["id"]] = 1;
+                shownNodesMap[data[i]["id"]] = 1;
                 currentTree.push(data[i]);
             }
         }
@@ -378,7 +381,7 @@ function NodeCollapse(currentNodeId,currentTree,data)
                     if(currentTree[i]["parentIds"].length === 0)
                     {
                         childrenQueue.push(currentTree[i]["id"]);
-                        map[currentTree[i]["id"]] = 0;
+                        shownNodesMap[currentTree[i]["id"]] = 0;
                     }
                     break;
                 }
@@ -393,7 +396,7 @@ function NodeCollapse(currentNodeId,currentTree,data)
     let itr = 0;
     while(itr<currentTree.length)
     {
-        if(map[currentTree[itr]["id"]] === 0)
+        if(shownNodesMap[currentTree[itr]["id"]] === 0)
         {
             currentTree.splice(itr, 1);
         }
@@ -409,7 +412,7 @@ function RemoveHiddenParents(parents)
     let j = 0;
     while(j<parents.length)
     {
-        if(map[parents[j]] === 0)
+        if(shownNodesMap[parents[j]] === 0)
         {
             parents.splice(j, 1);
         }
