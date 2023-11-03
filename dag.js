@@ -31,7 +31,9 @@ const line = d3
 .x((d) => d.x + nodeWidth/2)
 .y((d) => d.y + nodeHeight/2);
 
-
+/**
+ * Initialize tree with the two top layers nodes
+ */
 function initGraph() {
     // fetch data and render
     let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
@@ -98,7 +100,6 @@ function initGraph() {
   return JSON.parse(allText);
  }
 
-
  /**
   * Performs action after the info label is clicked
   * @param {Object} d clicked info
@@ -113,7 +114,7 @@ function initGraph() {
  }
 
 /**
- * Performs action after the a node is clicked
+ * Performs action after a node is clicked
  * @param {Object} d clicked info
  */
  function onNodeClicked(d) {
@@ -165,7 +166,6 @@ function initGraph() {
       // set new box height
   });
 }
-
 /**
  * Performs graph update. Updates nodes and links.
  * @param {Number} currentNodeId
@@ -190,7 +190,10 @@ function initGraph() {
       }
   });
 }
-
+/**
+ * Toggle between expanding and collapsing node children
+ * @param {Object} d clicked node
+ */
 function onNodeToggleChildrenClicked(d){
     let currentNodeId = d.currentTarget.__data__.data.id;
     let state;
@@ -207,6 +210,11 @@ function onNodeToggleChildrenClicked(d){
     updateTree(currentNodeId,state);
 }
 
+/**
+ * update currentTree after expand/collapse of a node
+ * @param {String} currentNodeId node ID
+ * @param {String} state node to be expanded or collapsed
+ */
 function updateTree(currentNodeId,state){
     let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
     if(state === "expand")
@@ -216,7 +224,7 @@ function updateTree(currentNodeId,state){
     }
     else
     {
-        NodeCollapse(currentNodeId,data);
+        NodeCollapse(currentNodeId);
     }
     for (let i = 0; i < currentTree.length; i++)
     {
@@ -235,6 +243,11 @@ function updateTree(currentNodeId,state){
         .attr('transform', zoomTransform);
 }
 
+/**
+ * draw the tree elements
+ * @param {Array} drawData node ID
+ * @param {String} state initialize or update the tree
+ */
 function drawTree(drawData,state)
 {
     dag = d3.dagStratify()(drawData);
@@ -355,10 +368,13 @@ function drawTree(drawData,state)
         .on("click", onNodeToggleChildrenClicked);
 
 }
-
+/**
+ * Search for nodes children and add them to the currentTree
+ * @param {String} currentNodeId clicked node ID
+ * @param {Array} data tree data
+ */
 function NodeExpand(currentNodeId,data)
 {
-    let childrenIds = [];
     for(let i = 0;i<data.length;i++)
     {
         if(data[i]["parentIds"].includes(currentNodeId))
@@ -382,12 +398,15 @@ function NodeExpand(currentNodeId,data)
                 shownNodesMap[data[i]["id"]] = 1;
                 currentTree.push(data[i]);
             }
-            childrenIds.push(data[i]["id"]);
         }
     }
 }
-
-function NodeCollapse(currentNodeId,data)
+/**
+ * Search for nodes children and remove them from currentTree
+ * If there is a child has children, check if it should be removed, or it has other parents in the currentTree
+ * @param {String} currentNodeId clicked node ID
+ */
+function NodeCollapse(currentNodeId)
 {
     let childrenQueue = [];
     childrenQueue.push(currentNodeId);
@@ -429,7 +448,10 @@ function NodeCollapse(currentNodeId,data)
     }
 }
 
-
+/**
+ * Remove node parents not included in the currentTree
+ * @param {Array} parents node parents
+ */
 function RemoveHiddenParents(parents)
 {
     let j = 0;
@@ -446,6 +468,11 @@ function RemoveHiddenParents(parents)
     }
 }
 
+/**
+ * Update expand/collapse state of node
+ * @param {String} currentNodeId node ID
+ * @param {Array} data tree data
+ */
 function updateShownNodeChildrenMap(currentNodeId,data)
 {
     if(getNodeChildren(currentNodeId,data).length === getNodeChildren(currentNodeId,currentTree).length)

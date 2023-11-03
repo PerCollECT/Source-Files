@@ -293,7 +293,12 @@ function prepareReferencesInfo(referenceString){
 
   return value;
 }
-
+/**
+ * Get node children
+ * @param {String} nodeId node ID
+ * @param {Array} data tree data
+ * @returns
+ */
 function getNodeChildren(nodeId,data)
 {
   let children = [];
