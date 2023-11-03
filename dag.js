@@ -11,6 +11,7 @@ let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
 let shownNodesMap = {};
 let shownNodeChildrenMap = {};
+let leavesNodes = [];
 let currentTree = [];
 let zoomTransform;
 
@@ -36,24 +37,35 @@ function initGraph() {
     let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
     for(let i=0;i<data.length;i++)
     {
+        ///Expand the nodes with no parents and initialize shownNodesMap with the shown nodes in the tree
+        // and shownNodeChildrenMap with the state of the node(expanded or collapsed)
         if(data[i]["parentIds"].length === 0)
         {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
-            NodeExpand(data[i]["id"],currentTree,data)
+            NodeExpand(data[i]["id"],data)
+            shownNodeChildrenMap[data[i]["id"]] = 1;
         }
         else{
             if(shownNodesMap[data[i]["id"]] !== 1)
             {
                 shownNodesMap[data[i]["id"]] = 0;
             }
+            shownNodeChildrenMap[data[i]["id"]] = 0;
+        }
+        ///Get nodes with no children to draw them without expand/collapse button
+        if(getNodeChildren(data[i]["id"],data).length === 0)
+        {
+            leavesNodes.push(data[i]["id"])
         }
     }
-    for (let i = 0; i < data.length; i++)
+    ///Remove hidden parents of the nodes in the currentTree
+    for (let i = 0; i < currentTree.length; i++)
     {
-        if(shownNodesMap[data[i]["id"]] === 1)
+        if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            RemoveHiddenParents(data[i]["parentIds"]);
+            // currentTree[i]["parentIds"] = RemoveHiddenParents(currentTree[i]["id"]);
+            RemoveHiddenParents(currentTree[i]["parentIds"]);
         }
     }
     drawTree(currentTree,"init");
@@ -83,9 +95,7 @@ function initGraph() {
       }
   }
   rawFile.send(null);
-  data = JSON.parse(allText);
-
-  return data;
+  return JSON.parse(allText);
  }
 
 
@@ -180,33 +190,45 @@ function initGraph() {
       }
   });
 }
-function onNodeExpandClicked(d) {
+
+function onNodeToggleChildrenClicked(d){
     let currentNodeId = d.currentTarget.__data__.data.id;
-    let element = d.currentTarget
-    updateTree(currentNodeId,"expand");
-    element.setAttribute("fill","blue");
-}
-function onNodeCollapseClicked(d) {
-    let currentNodeId = d.currentTarget.__data__.data.id;
-    updateTree(currentNodeId,"collapse");
-}
-function updateTree(currentNodeId,state){
-    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
-    let drawData = [];
-    if(state === "expand")
+    let state;
+    if(shownNodeChildrenMap[currentNodeId])
     {
-        NodeExpand(currentNodeId,currentTree,data);
+        state = "collapse";
+        shownNodeChildrenMap[currentNodeId] = 0;
     }
     else
     {
-        NodeCollapse(currentNodeId,currentTree,data);
+        state = "expand";
+        shownNodeChildrenMap[currentNodeId] = 1;
     }
-    for (let i = 0; i < data.length; i++)
+    updateTree(currentNodeId,state);
+}
+
+function updateTree(currentNodeId,state){
+    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    if(state === "expand")
     {
-        if(shownNodesMap[data[i]["id"]] === 1)
+        NodeExpand(currentNodeId,data);
+
+    }
+    else
+    {
+        NodeCollapse(currentNodeId,data);
+    }
+    for (let i = 0; i < currentTree.length; i++)
+    {
+        if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            RemoveHiddenParents(data[i]["parentIds"]);
+            // currentTree[i]["parentIds"] = RemoveHiddenParents(currentTree[i]["id"]);
+            RemoveHiddenParents(currentTree[i]["parentIds"]);
         }
+    }
+    for (let i = 0; i < currentTree.length; i++)
+    {
+        shownNodeChildrenMap[currentTree[i]["id"]] = updateShownNodeChildrenMap(currentTree[i]["id"],data)
     }
     drawTree(currentTree,"update");
     graph
@@ -305,44 +327,43 @@ function drawTree(drawData,state)
         .on("mouseover", function () { d3.select(this).attr("r", 20); })
         .on("mouseout", function () { d3.select(this).attr("r", 15); })
         .on("click", onNodeInfoClicked);
-    console.log(nodes[0])
-
-    nodes.append("circle")
-        // .attr("id", "expand")
-        // .attr("class", "iButton")
-        .attr("cx", nodeWidth/2)
-        .attr("cy", nodeHeight)
-        .attr("r", 12)
-        .attr("fill","darkblue")
-        .on("mouseover", function () { d3.select(this).attr("r", 15); })
-        .on("mouseout", function () { d3.select(this).attr("r", 12); })
-        .on("click", onNodeExpandClicked);
-
-    nodes.append("circle")
-        // .attr("id", "collapse")
-        // .attr("class", "iButton")
-        .attr("cx", nodeWidth/2)
-        .attr("cy", 0)
-        .attr("r", 12)
-        .attr("fill","darkred")
-        .on("mouseover", function () { d3.select(this).attr("r", 15); })
-        .on("mouseout", function () { d3.select(this).attr("r", 12); })
-        .on("click", onNodeCollapseClicked);
 
     nodes.append("text")
         .attr("class", "iText")
         .attr("y", 26.5)
         .attr("x", nodeWidth - 20 - (5 / 2))
         .html("i");
+
+    ///Filter nodes with no children to add expand/collapse button
+    let nodesHaveChildren = nodes.filter(function(node){
+        return !leavesNodes.includes(node.data.id);
+    })
+    nodesHaveChildren.append("circle")
+        .attr("cx", nodeWidth/2)
+        .attr("cy", nodeHeight)
+        .attr("r", 12)
+        .attr("fill",function (d) {
+            switch (shownNodeChildrenMap[d.data.id]) {
+                case 1:
+                    return "darkred";
+                default:
+                    return "darkblue";
+            }
+        })
+        .on("mouseover", function () { d3.select(this).attr("r", 15); })
+        .on("mouseout", function () { d3.select(this).attr("r", 12); })
+        .on("click", onNodeToggleChildrenClicked);
+
 }
 
-function NodeExpand(currentNodeId,currentTree,data)
+function NodeExpand(currentNodeId,data)
 {
+    let childrenIds = [];
     for(let i = 0;i<data.length;i++)
     {
         if(data[i]["parentIds"].includes(currentNodeId))
         {
-            // RemoveHiddenParents(data[i]["parentIds"]);
+            ///If the child is already shown, add the parent to it in currentTree
             if(shownNodesMap[data[i]["id"]] === 1)
             {
                 for(let j = 0;j<currentTree.length;j++)
@@ -361,11 +382,12 @@ function NodeExpand(currentNodeId,currentTree,data)
                 shownNodesMap[data[i]["id"]] = 1;
                 currentTree.push(data[i]);
             }
+            childrenIds.push(data[i]["id"]);
         }
     }
 }
 
-function NodeCollapse(currentNodeId,currentTree,data)
+function NodeCollapse(currentNodeId,data)
 {
     let childrenQueue = [];
     childrenQueue.push(currentNodeId);
@@ -398,6 +420,7 @@ function NodeCollapse(currentNodeId,currentTree,data)
     {
         if(shownNodesMap[currentTree[itr]["id"]] === 0)
         {
+            shownNodeChildrenMap[currentTree[itr]["id"]] = 0;
             currentTree.splice(itr, 1);
         }
         else{
@@ -420,5 +443,17 @@ function RemoveHiddenParents(parents)
         {
             j++;
         }
+    }
+}
+
+function updateShownNodeChildrenMap(currentNodeId,data)
+{
+    if(getNodeChildren(currentNodeId,data).length === getNodeChildren(currentNodeId,currentTree).length)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }

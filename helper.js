@@ -294,3 +294,14 @@ function prepareReferencesInfo(referenceString){
   return value;
 }
 
+function getNodeChildren(nodeId,data)
+{
+  let children = [];
+  data.forEach(function (elem) {
+    if (elem.parentIds.includes(nodeId)) {
+      children.push(elem)
+    }
+  });
+  return children;
+}
+
