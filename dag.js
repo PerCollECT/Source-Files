@@ -375,6 +375,7 @@ function drawTree(drawData,state)
  */
 function NodeExpand(currentNodeId,data)
 {
+    let nodeChildren = [];
     for(let i = 0;i<data.length;i++)
     {
         if(data[i]["parentIds"].includes(currentNodeId))
@@ -397,6 +398,24 @@ function NodeExpand(currentNodeId,data)
             else{
                 shownNodesMap[data[i]["id"]] = 1;
                 currentTree.push(data[i]);
+            }
+            nodeChildren.push(data[i]["id"]);
+        }
+    }
+    for(let i = 0;i<nodeChildren.length;i++)
+    {
+        let nodeGrandChildren = getNodeChildren(nodeChildren[i],data);
+        for(let j = 0;j<nodeGrandChildren.length;j++)
+        {
+            if(shownNodesMap[nodeGrandChildren[j]["id"]] === 1)
+            {
+                for(let k=0;k<currentTree.length;k++)
+                {
+                    if(nodeGrandChildren[j]["id"] === currentTree[k]["id"] && !currentTree[k]["parentIds"].includes(nodeChildren[i]))
+                    {
+                        currentTree[k]["parentIds"].push(nodeChildren[i]);
+                    }
+                }
             }
         }
     }
