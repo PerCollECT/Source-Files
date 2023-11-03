@@ -367,6 +367,32 @@ function drawTree(drawData,state)
         .on("mouseout", function () { d3.select(this).attr("r", 12); })
         .on("click", onNodeToggleChildrenClicked);
 
+    nodesHaveChildren.append("text")
+        .attr("class", "iText")
+        .attr("x",function (d) {
+            switch (shownNodeChildrenMap[d.data.id]) {
+                case 1:
+                    return nodeWidth/2 - 4.25;
+                default:
+                    return nodeWidth/2 - 7;
+            }
+        })
+        .attr("y",function (d) {
+            switch (shownNodeChildrenMap[d.data.id]) {
+                case 1:
+                    return nodeHeight + 6;
+                default:
+                    return nodeHeight + 8.5;
+            }
+        })
+        .html(function (d) {
+            switch (shownNodeChildrenMap[d.data.id]) {
+                case 1:
+                    return "-";
+                default:
+                    return "+";
+            }
+        })
 }
 /**
  * Search for nodes children and add them to the currentTree
@@ -402,6 +428,7 @@ function NodeExpand(currentNodeId,data)
             nodeChildren.push(data[i]["id"]);
         }
     }
+    ///Link new nodes (clicked node children) to their existing children
     for(let i = 0;i<nodeChildren.length;i++)
     {
         let nodeGrandChildren = getNodeChildren(nodeChildren[i],data);

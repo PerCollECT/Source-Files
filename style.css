@@ -244,7 +244,7 @@ body {
 /*}*/
 
 .node .iText {
-  font-size: 18px;
+  font-size: 25px;
   fill: var(--main-bg);
   pointer-events: none;
   font-family: Georgia, 'Times New Roman', Times, serif;
