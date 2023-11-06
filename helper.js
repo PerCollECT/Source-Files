@@ -310,3 +310,25 @@ function getNodeChildren(nodeId,data)
   return children;
 }
 
+function addInfoBoxResizeBar()
+{
+  let infoBox = document.querySelector(".info_box_container"),
+      resizeBar = document.querySelector(".resize_bar");
+
+// on mouse down (drag start)
+  resizeBar.onmousedown = function dragMouseDown(e) {
+    // get position of mouse
+    let dragY = e.clientY;
+    // register a mouse move listener if mouse is down
+    document.onmousemove = function onMouseMove(e) {
+      // e.clientY will be the position of the mouse as it has moved a bit now
+      // offsetHeight is the height of the infoBox
+      infoBox.style.height = infoBox.offsetHeight - (e.clientY - dragY) + "px";
+      // update variable - till this pos, mouse movement has been handled
+      dragY = e.clientY;
+    }
+    // remove mouse-move listener on mouse-up (drag is finished now)
+    document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+  }
+}
+

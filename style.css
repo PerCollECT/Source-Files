@@ -172,6 +172,9 @@ body {
 .content {
   height: 100vh;
   margin-left: var(--sidenav-width);
+  display: flex;
+  flex-direction: column;
+
 }
 
 .content #load_info {
@@ -260,7 +263,7 @@ body {
   margin-left: var(--legend-margin-lr);
   margin-right: var(--legend-margin-lr);
   position:fixed;
-  bottom:25%;
+  bottom:26%;
   right:0;
 }
 
@@ -285,17 +288,28 @@ body {
   line-height: 20px;
   float:left;
 }
-
 /* infobox  */
-.content #info_box {
+.content .info_box_container {
+  resize: vertical;
+  height: 26%;
+  bottom:0;
+  position:fixed;
   width: calc(100% - var(--sidenav-width));
+  background-color: white;
+}
+
+.content .resize_bar{
+  background-color: lightgray;
+  height:10px;
+  cursor: row-resize;
+  border-radius: 50px;
+}
+
+.content #info_box {
   /*margin-top: 20px;*/
   /*display: inline-block;*/
   overflow-y: scroll;
-  height: 25%;
-  position:fixed;
-  bottom:0;
-  background-color: white;
+  height: 96%;
 }
 
 .content #info_box .info {
