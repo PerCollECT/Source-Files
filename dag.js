@@ -45,7 +45,7 @@ function initGraph() {
         {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
-            NodeExpand(data[i]["id"],data)
+            nodeExpand(data[i]["id"],data)
             shownNodeChildrenMap[data[i]["id"]] = 1;
         }
         else{
@@ -66,8 +66,8 @@ function initGraph() {
     {
         if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            // currentTree[i]["parentIds"] = RemoveHiddenParents(currentTree[i]["id"]);
-            RemoveHiddenParents(currentTree[i]["parentIds"]);
+            // currentTree[i]["parentIds"] = removeHiddenParents(currentTree[i]["id"]);
+            removeHiddenParents(currentTree[i]["parentIds"]);
         }
     }
     drawTree(currentTree,"init");
@@ -219,18 +219,18 @@ function updateTree(currentNodeId,state){
     let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
     if(state === "expand")
     {
-        NodeExpand(currentNodeId,data);
+        nodeExpand(currentNodeId,data);
 
     }
     else if(state === "collapse")
     {
-        NodeCollapse(currentNodeId);
+        nodeCollapse(currentNodeId);
     }
     for (let i = 0; i < currentTree.length; i++)
     {
         if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            RemoveHiddenParents(currentTree[i]["parentIds"]);
+            removeHiddenParents(currentTree[i]["parentIds"]);
         }
     }
     for (let i = 0; i < currentTree.length; i++)
@@ -398,7 +398,7 @@ function drawTree(drawData,state)
  * @param {String} currentNodeId clicked node ID
  * @param {Array} data tree data
  */
-function NodeExpand(currentNodeId,data)
+function nodeExpand(currentNodeId,data)
 {
     let nodeChildren = [];
     for(let i = 0;i<data.length;i++)
@@ -428,14 +428,14 @@ function NodeExpand(currentNodeId,data)
         }
     }
     ///Link new nodes (clicked node children) to their existing children
-    LinkNewNodesChildren(nodeChildren,data)
+    linkNewNodesChildren(nodeChildren,data)
 }
 /**
  * Search for nodes children and remove them from currentTree
  * If there is a child has children, check if it should be removed, or it has other parents in the currentTree
  * @param {String} currentNodeId clicked node ID
  */
-function NodeCollapse(currentNodeId)
+function nodeCollapse(currentNodeId)
 {
     let childrenQueue = [];
     childrenQueue.push(currentNodeId);
@@ -481,7 +481,7 @@ function NodeCollapse(currentNodeId)
  * Remove node parents not included in the currentTree
  * @param {Array} parents node parents
  */
-function RemoveHiddenParents(parents)
+function removeHiddenParents(parents)
 {
     let j = 0;
     while(j<parents.length)
@@ -546,11 +546,11 @@ function expandNodeTree(node)
             currentTree.push(getNodeById(child.id));
         }
     })
-    LinkNewNodesChildren(children,data);
+    linkNewNodesChildren(children,data);
     updateTree(node.id,"node tree")
 }
 
-function LinkNewNodesChildren(nodes,data)
+function linkNewNodesChildren(nodes,data)
 {
     for(let i = 0;i<nodes.length;i++)
     {
