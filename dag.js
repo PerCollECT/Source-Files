@@ -222,7 +222,7 @@ function updateTree(currentNodeId,state){
         NodeExpand(currentNodeId,data);
 
     }
-    else
+    else if(state === "collapse")
     {
         NodeCollapse(currentNodeId);
     }
@@ -230,7 +230,6 @@ function updateTree(currentNodeId,state){
     {
         if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            // currentTree[i]["parentIds"] = RemoveHiddenParents(currentTree[i]["id"]);
             RemoveHiddenParents(currentTree[i]["parentIds"]);
         }
     }
@@ -529,4 +528,30 @@ function updateShownNodeChildrenMap(currentNodeId,data)
     {
         return 0;
     }
+}
+
+function expandNodeTree(node)
+{
+    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    if(shownNodesMap[node.id] !==1)
+    {
+        shownNodesMap[node.id] = 1;
+        currentTree.push(node);
+    }
+    let nodeParentsQueue = node.parentIds.slice(0);
+    while(nodeParentsQueue.length > 0)
+    {
+        let parentId = nodeParentsQueue.shift();
+        let parent = getNodeById(parentId);
+        if(shownNodesMap[parentId] !==1)
+        {
+            shownNodesMap[parentId] = 1;
+            currentTree.push(parent);
+        }
+        console.log(parent)
+        parent.parentIds.forEach(function(elem){
+            nodeParentsQueue.push(elem);
+        })
+    }
+    updateTree(node.id,"node tree")
 }
