@@ -428,23 +428,7 @@ function NodeExpand(currentNodeId,data)
         }
     }
     ///Link new nodes (clicked node children) to their existing children
-    for(let i = 0;i<nodeChildren.length;i++)
-    {
-        let nodeGrandChildren = getNodeChildren(nodeChildren[i],data);
-        for(let j = 0;j<nodeGrandChildren.length;j++)
-        {
-            if(shownNodesMap[nodeGrandChildren[j]["id"]] === 1)
-            {
-                for(let k=0;k<currentTree.length;k++)
-                {
-                    if(nodeGrandChildren[j]["id"] === currentTree[k]["id"] && !currentTree[k]["parentIds"].includes(nodeChildren[i]))
-                    {
-                        currentTree[k]["parentIds"].push(nodeChildren[i]);
-                    }
-                }
-            }
-        }
-    }
+    LinkNewNodesChildren(nodeChildren,data)
 }
 /**
  * Search for nodes children and remove them from currentTree
@@ -539,6 +523,7 @@ function expandNodeTree(node)
         currentTree.push(node);
     }
     let nodeParentsQueue = node.parentIds.slice(0);
+    //show node parents till the top layer
     while(nodeParentsQueue.length > 0)
     {
         let parentId = nodeParentsQueue.shift();
@@ -548,10 +533,40 @@ function expandNodeTree(node)
             shownNodesMap[parentId] = 1;
             currentTree.push(parent);
         }
-        console.log(parent)
         parent.parentIds.forEach(function(elem){
             nodeParentsQueue.push(elem);
         })
     }
+    //show node children
+    let children = getNodeChildren(node.id,data);
+    children.forEach(function(child){
+        if(shownNodesMap[child.id] !==1)
+        {
+            shownNodesMap[child.id] = 1;
+            currentTree.push(getNodeById(child.id));
+        }
+    })
+    LinkNewNodesChildren(children,data);
     updateTree(node.id,"node tree")
+}
+
+function LinkNewNodesChildren(nodes,data)
+{
+    for(let i = 0;i<nodes.length;i++)
+    {
+        let nodeGrandChildren = getNodeChildren(nodes[i],data);
+        for(let j = 0;j<nodeGrandChildren.length;j++)
+        {
+            if(shownNodesMap[nodeGrandChildren[j]["id"]] === 1)
+            {
+                for(let k=0;k<currentTree.length;k++)
+                {
+                    if(nodeGrandChildren[j]["id"] === currentTree[k]["id"] && !currentTree[k]["parentIds"].includes(nodes[i]))
+                    {
+                        currentTree[k]["parentIds"].push(nodes[i]);
+                    }
+                }
+            }
+        }
+    }
 }
