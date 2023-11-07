@@ -334,7 +334,8 @@ function addInfoBoxResizeBar()
     document.onmousemove = function onMouseMove(e) {
       // e.clientY will be the position of the mouse as it has moved a bit now
       // offsetHeight is the height of the infoBox
-      if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 )
+      console.log(e.clientY)
+      if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 && e.clientY > 0)
       {
         infoBoxContainer.style.height = infoBoxContainer.offsetHeight - (e.clientY - dragY) + "px";
         // update variable - till this pos, mouse movement has been handled
