@@ -206,6 +206,7 @@ body {
 .node {
   cursor: pointer;
   text-anchor: start;
+  user-select: none;
 }
 
 .node rect {
@@ -236,16 +237,6 @@ body {
   opacity: 30%;
 }
 
-/*.node #expand{*/
-/*  fill: darkblue;*/
-/*  opacity: 100%;*/
-/*}*/
-
-/*.node #collapse{*/
-/*  fill: darkred;*/
-/*  opacity: 100%;*/
-/*}*/
-
 .node .iText {
   font-size: 25px;
   fill: var(--main-bg);
@@ -265,6 +256,7 @@ body {
   position:fixed;
   bottom:26%;
   right:0;
+  user-select: none;
 }
 
 .legend .circle {
