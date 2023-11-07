@@ -312,8 +312,19 @@ function getNodeChildren(nodeId,data)
 
 function addInfoBoxResizeBar()
 {
-  let infoBox = document.querySelector(".info_box_container"),
-      resizeBar = document.querySelector(".resize_bar");
+  const infoBoxContainer = document.createElement('div');
+  infoBoxContainer.classList.add('info_box_container');
+
+  const resizeBar = document.createElement('div');
+  resizeBar.classList.add('resize_bar');
+
+  const infoBox = document.getElementById('info_box');
+  infoBoxContainer.appendChild(resizeBar);
+  infoBoxContainer.appendChild(infoBox);
+
+  const content = document.getElementsByClassName('content');
+  const treeTableContainer = document.getElementById('tree_table_container');
+  content[0].insertBefore(infoBoxContainer,treeTableContainer);
 
 // on mouse down (drag start)
   resizeBar.onmousedown = function dragMouseDown(e) {
@@ -323,9 +334,12 @@ function addInfoBoxResizeBar()
     document.onmousemove = function onMouseMove(e) {
       // e.clientY will be the position of the mouse as it has moved a bit now
       // offsetHeight is the height of the infoBox
-      infoBox.style.height = infoBox.offsetHeight - (e.clientY - dragY) + "px";
-      // update variable - till this pos, mouse movement has been handled
-      dragY = e.clientY;
+      if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 )
+      {
+        infoBoxContainer.style.height = infoBoxContainer.offsetHeight - (e.clientY - dragY) + "px";
+        // update variable - till this pos, mouse movement has been handled
+        dragY = e.clientY;
+      }
     }
     // remove mouse-move listener on mouse-up (drag is finished now)
     document.onmouseup = () => document.onmousemove = document.onmouseup = null;
