@@ -164,7 +164,7 @@ function addAutoComplete(input) {
   // collect all nodes names in tree
   let arr = [];
   let tagsArr = [];
-  let tagsTitlesMap = {};
+  let tagsTitlesMap = {};//map that links each tag to its associated titles.
   tree.forEach(function (n) {
     if (!arr.includes(n.title)) {
       arr.push(n.title);
@@ -188,7 +188,7 @@ function addAutoComplete(input) {
   let currentFocus;
   input.addEventListener("input", function () {
     let val = this.value;
-    let titlesMap = {};
+    let titlesMap = {};//check if the title already in the search results to avoid duplicates.
 
     // close already open lists
     closeAllLists();
@@ -206,18 +206,9 @@ function addAutoComplete(input) {
     this.parentNode.appendChild(divContainer);
     arr.forEach(function (e) {
       titlesMap[e] = 0;
-      let includes = false;
-      let parts = e.split(/[ ,]+/);
-
-      parts.forEach(function (p) {
-        if (p.toLowerCase().includes(val.toLowerCase())) {
-          includes = true;
-          titlesMap[e] = 1;
-          return;
-        }
-      });
-
+      let includes = checkSearchBarValue(e,val);
       if (includes) {
+        titlesMap[e] = 1;
         let divEntry = document.createElement("div");
         let startIndex = e.toLowerCase().indexOf(val.toLowerCase());
         divEntry.innerHTML = e.substr(0, startIndex);
@@ -234,16 +225,7 @@ function addAutoComplete(input) {
     });
 
     tagsArr.forEach(function (e) {
-      let includes = false;
-      let parts = e.split(/[ ,]+/);
-
-      parts.forEach(function (p) {
-        if (p.toLowerCase().includes(val.toLowerCase())) {
-          includes = true;
-          return;
-        }
-      });
-
+      let includes = checkSearchBarValue(e,val);
       if (includes) {
         tagsTitlesMap[e].forEach(function(title){
           if(titlesMap[title] === 0){
@@ -262,6 +244,18 @@ function addAutoComplete(input) {
     });
 
   });
+
+  function checkSearchBarValue(data,searchVal)
+  {
+    let includes = false;
+    let parts = data.split(/[ ,]+/);
+    parts.forEach(function (p) {
+      if (p.toLowerCase().includes(searchVal.toLowerCase())) {
+        includes = true;
+      }
+    });
+    return includes;
+  }
 
   // key pressed handler
   input.addEventListener("keydown", function (e) {
