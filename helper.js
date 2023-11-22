@@ -163,15 +163,32 @@ function addAutoComplete(input) {
 
   // collect all nodes names in tree
   let arr = [];
+  let tagsArr = [];
+  let tagsTitlesMap = {};
   tree.forEach(function (n) {
     if (!arr.includes(n.title)) {
       arr.push(n.title);
     }
+    n.tags.forEach(function(tag){
+      if(tagsTitlesMap.hasOwnProperty(tag))
+      {
+        tagsTitlesMap[tag].push(n.title);
+      }
+      else
+      {
+        tagsTitlesMap[tag] = [];
+        tagsTitlesMap[tag].push(n.title);
+      }
+       if (!tagsArr.includes(tag)) {
+          tagsArr.push(tag);
+       }
+    })
   })
 
   let currentFocus;
   input.addEventListener("input", function () {
     let val = this.value;
+    let titlesMap = {};
 
     // close already open lists
     closeAllLists();
@@ -188,13 +205,14 @@ function addAutoComplete(input) {
     // append auto complete items
     this.parentNode.appendChild(divContainer);
     arr.forEach(function (e) {
-
+      titlesMap[e] = 0;
       let includes = false;
       let parts = e.split(/[ ,]+/);
 
       parts.forEach(function (p) {
         if (p.toLowerCase().includes(val.toLowerCase())) {
           includes = true;
+          titlesMap[e] = 1;
           return;
         }
       });
@@ -212,6 +230,34 @@ function addAutoComplete(input) {
           jumpToSearch();
         });
         divContainer.appendChild(divEntry);
+      }
+    });
+
+    tagsArr.forEach(function (e) {
+      let includes = false;
+      let parts = e.split(/[ ,]+/);
+
+      parts.forEach(function (p) {
+        if (p.toLowerCase().includes(val.toLowerCase())) {
+          includes = true;
+          return;
+        }
+      });
+
+      if (includes) {
+        tagsTitlesMap[e].forEach(function(title){
+          if(titlesMap[title] === 0){
+            let divEntry = document.createElement("div");
+            divEntry.innerHTML = title;
+            divEntry.innerHTML += `<input type='hidden' value='${title}'>`;
+            divEntry.addEventListener("click", function () {
+              input.value = this.getElementsByTagName("input")[0].value;
+              closeAllLists();
+              jumpToSearch();
+            });
+            divContainer.appendChild(divEntry);
+          }
+        })
       }
     });
 
@@ -334,7 +380,6 @@ function addInfoBoxResizeBar()
     document.onmousemove = function onMouseMove(e) {
       // e.clientY will be the position of the mouse as it has moved a bit now
       // offsetHeight is the height of the infoBox
-      console.log(e.clientY)
       if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 && e.clientY > 0)
       {
         infoBoxContainer.style.height = infoBoxContainer.offsetHeight - (e.clientY - dragY) + "px";
