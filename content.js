@@ -36,3 +36,4 @@ if (isIE()) {
   addInfoBoxResizeBar();
   addSideNavLinks();
   addAutoComplete(document.getElementById("search_input"));
+  addTreesLinks()

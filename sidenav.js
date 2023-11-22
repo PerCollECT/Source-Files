@@ -123,3 +123,24 @@ function navLink(title) {
     .attr("href", url)
     .html(name);
 }
+
+function addTreesLinks()
+{
+    const treesLinksContainer = document.createElement('div');
+    treesLinksContainer.classList.add('tree_links_container');
+
+    const sideNav = document.getElementById('side_nav_links');
+    const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
+    const content = document.getElementsByClassName('content');
+    let repos = ["LidarLimbs", "RadarRami", "UltrasonicUnderwood", "CameraCopse"];
+    repos.forEach(function(repo){
+        if(repo !== currentTreeTitle) {
+            let treeElement = document.createElement('a');
+            let treeLink = document.createTextNode(repo);
+            treeElement.appendChild(treeLink);
+            treeElement.href = "https://percollect.github.io/" + repo + "/";
+            treesLinksContainer.appendChild(treeElement);
+        }
+    })
+    sideNav.appendChild(treesLinksContainer)
+}
