@@ -38,7 +38,7 @@ const line = d3
 function initGraph() {
     // fetch data and render
     treeData = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
-    let data = structuredClone(treeData);
+    let data = structuredClone(treeData); // A clone is made to avoid any modifications in the original data
     for(let i=0;i<data.length;i++)
     {
         ///Expand the nodes with no parents and initialize shownNodesMap with the shown nodes in the tree
@@ -48,14 +48,12 @@ function initGraph() {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
             nodeChildrenExpand(data[i]["id"],data)
-            // nodeChildrenStateMap[data[i]["id"]] = 1;
         }
         else{
             if(shownNodesMap[data[i]["id"]] !== 1)
             {
                 shownNodesMap[data[i]["id"]] = 0;
             }
-            // nodeChildrenStateMap[data[i]["id"]] = 0;
         }
         ///Get nodes with no children to draw them without children expand/collapse button
         if(getNodeChildren(data[i]["id"],data).length === 0)
@@ -64,7 +62,6 @@ function initGraph() {
         }
     }
     ///Remove hidden parents of the nodes in the currentTree
-    console.log(nodeParentsStateMap)
     for (let i = 0; i < currentTree.length; i++)
     {
         if(shownNodesMap[currentTree[i]["id"]] === 1)
@@ -226,7 +223,7 @@ function onNodeParentsToggle(d)
  * @param {String} state node to be expanded or collapsed
  */
 function updateTree(currentNodeId,state){
-    let data = structuredClone(treeData);
+    let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
     if(state === "children expand")
     {
         nodeChildrenExpand(currentNodeId,data);
@@ -458,7 +455,7 @@ function nodeChildrenExpand(currentNodeId,data)
         }
     }
     ///Link new nodes (clicked node children) to their existing children
-    linkNewNodesChildren(nodeChildren,data)
+    linkNewNodes(nodeChildren,data)
 }
 /**
  * Search for nodes children and remove them from currentTree
@@ -539,19 +536,21 @@ function updateShownNodeMap(data)
         } else {
             nodeChildrenStateMap[currentTree[i]["id"]] = 0;
         }
-        let parentsNumber = getNodeParents(currentTree[i]["id"], data).length;
-        console.log(parentsNumber,getNodeParents(currentTree[i]["id"], currentTree).length)
-        if (parentsNumber === getNodeParents(currentTree[i]["id"], currentTree).length) {
+        if (getNodeParents(currentTree[i]["id"], data).length === getNodeParents(currentTree[i]["id"], currentTree).length) {
             nodeParentsStateMap[currentTree[i]["id"]] = 1;
         } else {
             nodeParentsStateMap[currentTree[i]["id"]] = 0;
         }
     }
 }
-
+/**
+ * Expand node found by search bar
+ * It links the node to its existing parents and expand its children
+ * @param {Object} node node
+ */
 function expandNodeTree(node)
 {
-    let data = structuredClone(treeData);
+    let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
     if(shownNodesMap[node.id] !==1)
     {
         shownNodesMap[node.id] = 1;
@@ -581,12 +580,16 @@ function expandNodeTree(node)
             currentTree.push(getNodeById(child.id));
         }
     })
-    linkNewNodesChildren(children,data);
+    linkNewNodes(children,data);
     updateTree(node.id,"node tree")
 }
 
 
-
+/**
+ * Search for nodes parents and add them to the currentTree
+ * @param {String} currentNodeId clicked node ID
+ * @param {Array} data tree data
+ */
 function nodeParentsExpand(currentNodeId,data)
 {
     let node = getNodeById(currentNodeId);
@@ -598,11 +601,16 @@ function nodeParentsExpand(currentNodeId,data)
             shownNodesMap[parentId] = 1;
         }
     })
-    linkNewNodesChildren(nodeParents,data)
+    linkNewNodes(nodeParents,data)
 
 }
 
-function linkNewNodesChildren(nodes,data)
+/**
+ * Link new nodes to the current shown nodes (new parents to their existing children or new children to their existing parents)
+ * @param {Array} nodes new nodes
+ * @param {Array} data tree data
+ */
+function linkNewNodes(nodes,data)
 {
     for(let i = 0;i<nodes.length;i++)
     {
