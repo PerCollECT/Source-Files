@@ -349,6 +349,23 @@ function getNodeChildren(nodeId,data)
   });
   return children;
 }
+/**
+ * Get node parents
+ * @param {String} nodeId node ID
+ * @param {Array} data tree data
+ * @returns
+ */
+function getNodeParents(nodeId,data)
+{
+  let parents = []
+  data.forEach(function (elem) {
+    if (elem.id === nodeId) {
+      parents =  elem.parentIds;
+      return;
+    }
+  });
+  return parents;
+}
 
 function addInfoBoxResizeBar()
 {
