@@ -293,4 +293,20 @@ function prepareReferencesInfo(referenceString){
 
   return value;
 }
+/**
+ * Get node children
+ * @param {String} nodeId node ID
+ * @param {Array} data tree data
+ * @returns
+ */
+function getNodeChildren(nodeId,data)
+{
+  let children = [];
+  data.forEach(function (elem) {
+    if (elem.parentIds.includes(nodeId)) {
+      children.push(elem)
+    }
+  });
+  return children;
+}
 

@@ -12,8 +12,10 @@ if (isIE()) {
   // parse data only if tree not loaded already
   if (getDataFromSessionStorage(repoName + "Tree") === null) {
     let parsedData = parseData(dataHost, dataDict, jsonDataFile);
+    // let parsedTreeChildren = parseData(dataHost, dataDict, jsonTreeFile);
     if(!parsedData.length) throw new Error("index.js: Data error");
     keepDataInSessionStorage(repoName + "Tree", JSON.stringify(parsedData));
+    // keepDataInSessionStorage(repoName + "TreeChildren", JSON.stringify(parsedTreeChildren));
   }
 
   initGraph();

@@ -16,6 +16,7 @@
 
 body {
   overflow-x: scroll;
+  overflow-y: hidden ;
   background-color: var(--main-bg);
   font-family: "Lato", sans-serif;
 }
@@ -169,7 +170,7 @@ body {
 
 /* content  */
 .content {
-  height: auto;
+  height: 100vh;
   margin-left: var(--sidenav-width);
 }
 
@@ -232,8 +233,18 @@ body {
   opacity: 30%;
 }
 
+/*.node #expand{*/
+/*  fill: darkblue;*/
+/*  opacity: 100%;*/
+/*}*/
+
+/*.node #collapse{*/
+/*  fill: darkred;*/
+/*  opacity: 100%;*/
+/*}*/
+
 .node .iText {
-  font-size: 18px;
+  font-size: 25px;
   fill: var(--main-bg);
   pointer-events: none;
   font-family: Georgia, 'Times New Roman', Times, serif;
@@ -248,7 +259,9 @@ body {
   margin-top: 20px;
   margin-left: var(--legend-margin-lr);
   margin-right: var(--legend-margin-lr);
-  float: right;
+  position:fixed;
+  bottom:25%;
+  right:0;
 }
 
 .legend .circle {
@@ -275,10 +288,14 @@ body {
 
 /* infobox  */
 .content #info_box {
-  width: 100%;
-  height: auto;
-  margin-top: 20px;
-  display: inline-block;
+  width: calc(100% - var(--sidenav-width));
+  /*margin-top: 20px;*/
+  /*display: inline-block;*/
+  overflow-y: scroll;
+  height: 25%;
+  position:fixed;
+  bottom:0;
+  background-color: white;
 }
 
 .content #info_box .info {
@@ -289,6 +306,8 @@ body {
   margin-right: var(--table-margin-lr);
   margin-bottom: 50px;
   border-top: 1px solid #d6d6d4;
+  /*overflow: hidden;*/
+  /*box-sizing: content-box;*/
 }
 
 .content #info_box .info .infoHead {
@@ -313,6 +332,7 @@ body {
 
 .content #info_box .info #info_key {
   font-weight: bold;
+  display: inline;
 }
 
 /* tree table  */
