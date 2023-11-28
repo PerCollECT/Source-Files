@@ -599,10 +599,21 @@ function nodeParentsExpand(currentNodeId,data)
         {
             currentTree.push(getNodeById(parentId));
             shownNodesMap[parentId] = 1;
+            linkNewNodes([parentId],data);
+
+        }
+        else // if the parent is already shown, add parent id to the current node only
+        {
+            for(let k=0;k<currentTree.length;k++)
+            {
+                if(currentNodeId === currentTree[k]["id"] && !currentTree[k]["parentIds"].includes(parentId))
+                {
+                    currentTree[k]["parentIds"].push(parentId);
+                    break;
+                }
+            }
         }
     })
-    linkNewNodes(nodeParents,data)
-
 }
 
 /**
