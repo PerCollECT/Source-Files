@@ -13,6 +13,8 @@ let shownNodesMap = {};
 let nodeChildrenStateMap = {};
 let nodeParentsStateMap = {};
 let leavesNodesIds = [];
+let rootsNodesIds = [];
+let rootsNodesCoord = {};
 let currentTree = [];
 let zoomTransform;
 
@@ -48,6 +50,8 @@ function initGraph() {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
             nodeChildrenExpand(data[i]["id"],data)
+            rootsNodesIds.push(data[i]["id"]);
+            rootsNodesCoord[data[i]["id"]] = [];
         }
         else{
             if(shownNodesMap[data[i]["id"]] !== 1)
@@ -275,6 +279,41 @@ function drawTree(drawData,state)
 
     defs = graph.append("defs"); // For gradients
 
+    let rootsNodesY = 100000;
+    let rootsNodesX = [];
+    //get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
+    dag.descendants().forEach(function(node){
+        if(node.y<rootsNodesY)
+        {
+            rootsNodesY = node.y;
+        }
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            rootsNodesX.push(node.x);
+        }
+    })
+    rootsNodesX.sort(function(a, b){return a - b});
+    let xStep = (rootsNodesX[rootsNodesIds.length - 1] - rootsNodesX[0])/rootsNodesIds.length;//horizontal space between roots nodes
+    let i = 0;
+    //Set the new coordinates to the roots nodes
+    dag.descendants().forEach(function(node){
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            node.y = rootsNodesY;
+            node.x = rootsNodesX[0] + i*xStep;
+            rootsNodesCoord[node.data.id] = [node.x,node.y]
+            i+=1;
+        }
+    })
+    //Set the new coordinates to the roots nodes links
+    dag.links().forEach(function(node){
+        if(rootsNodesIds.includes(node.source.data.id))
+        {
+            node.points[0].x = rootsNodesCoord[node.source.data.id][0];
+            node.points[0].y = rootsNodesCoord[node.source.data.id][1];
+        }
+    })
+
     // Plot edges
     graph
         .append("g")
@@ -297,8 +336,15 @@ function drawTree(drawData,state)
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", ({ x, y }) => `translate(${x}, ${y})`);
+    // let t = d3.transition()
+    //     .duration(1000)
+    //     .ease(d3.easeLinear);
+    // d3.selectAll(".node").transition(t);
+    // nodes.transition().duration(1000).ease(d3.easeLinear)
 
+        .attr("transform", ({x,y}) => `translate(${x}, ${y})`)
+        // .transition(t) // Add a transition
+        // .duration(1000) // Set the duration in milliseconds
     // Plot nodes
     nodes
         .append("rect")
