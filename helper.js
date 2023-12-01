@@ -310,3 +310,40 @@ function getNodeChildren(nodeId,data)
   return children;
 }
 
+function addInfoBoxResizeBar()
+{
+  const infoBoxContainer = document.createElement('div');
+  infoBoxContainer.classList.add('info_box_container');
+
+  const resizeBar = document.createElement('div');
+  resizeBar.classList.add('resize_bar');
+
+  const infoBox = document.getElementById('info_box');
+  infoBoxContainer.appendChild(resizeBar);
+  infoBoxContainer.appendChild(infoBox);
+
+  const content = document.getElementsByClassName('content');
+  const treeTableContainer = document.getElementById('tree_table_container');
+  content[0].insertBefore(infoBoxContainer,treeTableContainer);
+
+// on mouse down (drag start)
+  resizeBar.onmousedown = function dragMouseDown(e) {
+    // get position of mouse
+    let dragY = e.clientY;
+    // register a mouse move listener if mouse is down
+    document.onmousemove = function onMouseMove(e) {
+      // e.clientY will be the position of the mouse as it has moved a bit now
+      // offsetHeight is the height of the infoBox
+      console.log(e.clientY)
+      if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 && e.clientY > 0)
+      {
+        infoBoxContainer.style.height = infoBoxContainer.offsetHeight - (e.clientY - dragY) + "px";
+        // update variable - till this pos, mouse movement has been handled
+        dragY = e.clientY;
+      }
+    }
+    // remove mouse-move listener on mouse-up (drag is finished now)
+    document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+  }
+}
+

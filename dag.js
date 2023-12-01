@@ -109,7 +109,7 @@ function initGraph() {
     let node = getNodeByTitle(d.currentTarget.__data__.data.title);
     $("#info_box").empty();
     addNodeInfos(node, "preview");
-    document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
+    // document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
     updateGraphPlot(currentNodeId);
  }
 
@@ -118,12 +118,12 @@ function initGraph() {
  * @param {Object} d clicked info
  */
  function onNodeClicked(d) {
-  let currentNodeId = d.currentTarget.__data__.data.id;
-  let node = getNodeByTitle(d.currentTarget.__data__.data.title);
-  $("#info_box").empty();
-  addNodeInfos(node, "preview");
-    document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
-    updateGraphPlot(currentNodeId);
+   let currentNodeId = d.currentTarget.__data__.data.id;
+   let node = getNodeByTitle(d.currentTarget.__data__.data.title);
+   $("#info_box").empty();
+   addNodeInfos(node, "preview");
+    // document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
+   updateGraphPlot(currentNodeId);
 }
 
 /**

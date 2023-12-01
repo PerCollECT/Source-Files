@@ -33,5 +33,6 @@ if (isIE()) {
 
   // manage page content
   addLegend();
+  addInfoBoxResizeBar();
   addSideNavLinks();
   addAutoComplete(document.getElementById("search_input"));
