@@ -248,7 +248,8 @@ function updateTree(currentNodeId,state){
         }
     }
     updateShownNodeMap(treeData)
-    drawTree(currentTree,"update");
+    highlightSelectedNode(currentNodeId);
+    updateTreeGraph(currentTree);
     graph
         .attr('transform', zoomTransform);
 }
@@ -260,17 +261,14 @@ function updateTree(currentNodeId,state){
  */
 function drawTree(drawData,state)
 {
-    dag = d3.dagStratify()(drawData);
-    layout = d3
-        .sugiyama() // base layout
-        .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
-        .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
+    generateTreeLayout(drawData);
     const { width, height } = layout(dag);
     let sizeFactor = width/window.innerWidth
 
     // --------------------------------
     // This code only handles rendering
     // --------------------------------
+    keepTopLayersNodesUp();
     svgSelection = d3.select("svg");
     svgSelection.selectAll('*').remove();
     svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
@@ -278,42 +276,6 @@ function drawTree(drawData,state)
     graph = svgSelection.append("g");
 
     defs = graph.append("defs"); // For gradients
-
-    let rootsNodesY = 100000;
-    let rootsNodesX = [];
-    //get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
-    dag.descendants().forEach(function(node){
-        if(node.y<rootsNodesY)
-        {
-            rootsNodesY = node.y;
-        }
-        if(rootsNodesIds.includes(node.data.id))
-        {
-            rootsNodesX.push(node.x);
-        }
-    })
-    rootsNodesX.sort(function(a, b){return a - b});
-    let xStep = (rootsNodesX[rootsNodesIds.length - 1] - rootsNodesX[0])/rootsNodesIds.length;//horizontal space between roots nodes
-    let i = 0;
-    //Set the new coordinates to the roots nodes
-    dag.descendants().forEach(function(node){
-        if(rootsNodesIds.includes(node.data.id))
-        {
-            node.y = rootsNodesY;
-            node.x = rootsNodesX[0] + i*xStep;
-            rootsNodesCoord[node.data.id] = [node.x,node.y]
-            i+=1;
-        }
-    })
-    //Set the new coordinates to the roots nodes links
-    dag.links().forEach(function(node){
-        if(rootsNodesIds.includes(node.source.data.id))
-        {
-            node.points[0].x = rootsNodesCoord[node.source.data.id][0];
-            node.points[0].y = rootsNodesCoord[node.source.data.id][1];
-        }
-    })
-
     // Plot edges
     graph
         .append("g")
@@ -336,15 +298,7 @@ function drawTree(drawData,state)
         .enter()
         .append("g")
         .attr("class", "node")
-    // let t = d3.transition()
-    //     .duration(1000)
-    //     .ease(d3.easeLinear);
-    // d3.selectAll(".node").transition(t);
-    // nodes.transition().duration(1000).ease(d3.easeLinear)
-
-        .attr("transform", ({x,y}) => `translate(${x}, ${y})`)
-        // .transition(t) // Add a transition
-        // .duration(1000) // Set the duration in milliseconds
+        .attr("transform", ({x,y}) => `translate(${x}, ${y})`);
     // Plot nodes
     nodes
         .append("rect")
@@ -686,4 +640,98 @@ function linkNewNodes(nodes,data)
             }
         }
     }
+}
+/**
+ * draw the tree elements
+ * @param {Array} drawData node ID
+ */
+function updateTreeGraph(drawData)
+{
+    generateTreeLayout(drawData);
+    layout(dag);
+    keepTopLayersNodesUp();
+    // svgSelection = d3.select("svg");
+    // graph = svgSelection.select("g");
+    // graph
+    //     .select(".paths-list")
+    //     .selectAll("path")
+    //     .data(dag.links(), d => link => link.data.id)
+    //     .attr("d", ({ points }) => line(points))
+    // Select nodes
+    nodes = graph
+        .select(".nodes-list")
+        .selectAll(".node")
+        .data(dag.descendants(), d => d.data.id)
+    let completeTransitions = 0;
+    nodes
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .attr("transform", function(node){
+           return `translate(${node.x}, ${node.y})`
+        })
+        .on("end", function(){
+            completeTransitions++;
+            if(completeTransitions===nodes.size())
+            {
+                drawTree(drawData,"update");
+                graph
+                    .attr('transform', zoomTransform);
+            }
+        });
+}
+
+function highlightSelectedNode(currentNodeId)
+{
+    let node = nodes.filter(function(node){
+        return node.data.id === currentNodeId;
+    })
+    node.select("rect").style("fill","rgba(255,255,0,0.5)");
+}
+
+function generateTreeLayout(treeData)
+{
+    dag = d3.dagStratify()(treeData);
+    layout = d3
+        .sugiyama() // base layout
+        .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
+        .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
+}
+
+function keepTopLayersNodesUp()
+{
+    let rootsNodesY = 100000;
+    let rootsNodesX = [];
+    //get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
+    dag.descendants().forEach(function(node){
+        if(node.y<rootsNodesY)
+        {
+            rootsNodesY = node.y;
+        }
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            rootsNodesX.push(node.x);
+        }
+    })
+    rootsNodesX.sort(function(a, b){return a - b});
+    let xStep = (rootsNodesX[rootsNodesIds.length - 1] - rootsNodesX[0])/rootsNodesIds.length;//horizontal space between roots nodes
+    let i = 0;
+    //Set the new coordinates to the roots nodes
+    dag.descendants().forEach(function(node){
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            node.y = rootsNodesY;
+            node.x = rootsNodesX[0] + i*xStep;
+            rootsNodesCoord[node.data.id] = [node.x,node.y]
+            i+=1;
+        }
+    })
+    //Set the new coordinates to the roots nodes links
+    dag.links().forEach(function(node){
+        if(rootsNodesIds.includes(node.source.data.id))
+        {
+            node.points[0].x = rootsNodesCoord[node.source.data.id][0];
+            node.points[0].y = rootsNodesCoord[node.source.data.id][1];
+        }
+    })
 }
