@@ -407,3 +407,8 @@ body {
 .content #tree_table .gs-pagination {
   padding-bottom: 50px;
 }
+
+.tree_links_container{
+  position: fixed;
+  bottom: 0;
+}
