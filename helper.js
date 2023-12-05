@@ -169,20 +169,26 @@ function addAutoComplete(input) {
     if (!arr.includes(n.title)) {
       arr.push(n.title);
     }
-    n.tags.forEach(function(tag){
-      if(tagsTitlesMap.hasOwnProperty(tag))
-      {
-        tagsTitlesMap[tag].push(n.title);
-      }
-      else
-      {
-        tagsTitlesMap[tag] = [];
-        tagsTitlesMap[tag].push(n.title);
-      }
-       if (!tagsArr.includes(tag)) {
+    try{
+      n.tags.forEach(function(tag){
+        if(tagsTitlesMap.hasOwnProperty(tag))
+        {
+          tagsTitlesMap[tag].push(n.title);
+        }
+        else
+        {
+          tagsTitlesMap[tag] = [];
+          tagsTitlesMap[tag].push(n.title);
+        }
+        if (!tagsArr.includes(tag)) {
           tagsArr.push(tag);
-       }
-    })
+        }
+      })
+    }
+    catch{
+      console.log("tags property doesn't exist")
+    }
+
   })
 
   let currentFocus;
