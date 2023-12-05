@@ -256,7 +256,7 @@ function updateTree(currentNodeId,state){
 
 /**
  * draw the tree elements
- * @param {Array} drawData node ID
+ * @param {Array} drawData current tree data
  * @param {String} state initialize or update the tree
  */
 function drawTree(drawData,state)
@@ -642,8 +642,8 @@ function linkNewNodes(nodes,data)
     }
 }
 /**
- * draw the tree elements
- * @param {Array} drawData node ID
+ * update tree graph with nodes transition effect
+ * @param {Array} drawData tree data
  */
 function updateTreeGraph(drawData)
 {
@@ -655,8 +655,9 @@ function updateTreeGraph(drawData)
     // graph
     //     .select(".paths-list")
     //     .selectAll("path")
-    //     .data(dag.links(), d => link => link.data.id)
+    //     .data(dag.links())
     //     .attr("d", ({ points }) => line(points))
+    // graph.selectAll('path').remove();
     // Select nodes
     nodes = graph
         .select(".nodes-list")
@@ -681,6 +682,10 @@ function updateTreeGraph(drawData)
         });
 }
 
+/**
+ * highlight selected node
+ * @param {String} currentNodeId node ID
+ */
 function highlightSelectedNode(currentNodeId)
 {
     let node = nodes.filter(function(node){
@@ -689,6 +694,10 @@ function highlightSelectedNode(currentNodeId)
     node.select("rect").style("fill","rgba(255,255,0,0.5)");
 }
 
+/**
+ * generate tree layout
+ * @param {Array} treeData tree data
+ */
 function generateTreeLayout(treeData)
 {
     dag = d3.dagStratify()(treeData);
@@ -698,6 +707,9 @@ function generateTreeLayout(treeData)
         .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
 }
 
+/**
+ * modify top layer nodes positions to keep them at the top
+ */
 function keepTopLayersNodesUp()
 {
     let rootsNodesY = 100000;
