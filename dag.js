@@ -1,4 +1,4 @@
-let scale;
+let treeData;
 let svgSelection;
 let defs;
 let layout;
@@ -10,8 +10,9 @@ let maxTextLength = 200;
 let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
 let shownNodesMap = {};
-let shownNodeChildrenMap = {};
-let leavesNodes = [];
+let nodeChildrenStateMap = {};
+let nodeParentsStateMap = {};
+let leavesNodesIds = [];
 let currentTree = [];
 let zoomTransform;
 
@@ -36,29 +37,28 @@ const line = d3
  */
 function initGraph() {
     // fetch data and render
-    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    treeData = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    let data = structuredClone(treeData); // A clone is made to avoid any modifications in the original data
     for(let i=0;i<data.length;i++)
     {
         ///Expand the nodes with no parents and initialize shownNodesMap with the shown nodes in the tree
-        // and shownNodeChildrenMap with the state of the node(expanded or collapsed)
+        // and nodeChildrenStateMap with the state of the node children(expanded or collapsed)
         if(data[i]["parentIds"].length === 0)
         {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
-            nodeExpand(data[i]["id"],data)
-            shownNodeChildrenMap[data[i]["id"]] = 1;
+            nodeChildrenExpand(data[i]["id"],data)
         }
         else{
             if(shownNodesMap[data[i]["id"]] !== 1)
             {
                 shownNodesMap[data[i]["id"]] = 0;
             }
-            shownNodeChildrenMap[data[i]["id"]] = 0;
         }
-        ///Get nodes with no children to draw them without expand/collapse button
+        ///Get nodes with no children to draw them without children expand/collapse button
         if(getNodeChildren(data[i]["id"],data).length === 0)
         {
-            leavesNodes.push(data[i]["id"])
+            leavesNodesIds.push(data[i]["id"])
         }
     }
     ///Remove hidden parents of the nodes in the currentTree
@@ -70,6 +70,7 @@ function initGraph() {
             removeHiddenParents(currentTree[i]["parentIds"]);
         }
     }
+    updateShownNodeMap(treeData);
     drawTree(currentTree,"init");
 }
 
@@ -194,37 +195,46 @@ function initGraph() {
  * Toggle between expanding and collapsing node children
  * @param {Object} d clicked node
  */
-function onNodeToggleChildrenClicked(d){
+function onNodeChildrenToggle(d){
     let currentNodeId = d.currentTarget.__data__.data.id;
     let state;
-    if(shownNodeChildrenMap[currentNodeId])
+    if(nodeChildrenStateMap[currentNodeId])
     {
-        state = "collapse";
-        shownNodeChildrenMap[currentNodeId] = 0;
+        state = "children collapse";
+        nodeChildrenStateMap[currentNodeId] = 0;
     }
     else
     {
-        state = "expand";
-        shownNodeChildrenMap[currentNodeId] = 1;
+        state = "children expand";
+        nodeChildrenStateMap[currentNodeId] = 1;
     }
     updateTree(currentNodeId,state);
 }
 
+function onNodeParentsToggle(d)
+{
+    let currentNodeId = d.currentTarget.__data__.data.id;
+    let state = "parents expand";
+    updateTree(currentNodeId,state);
+}
 /**
  * update currentTree after expand/collapse of a node
  * @param {String} currentNodeId node ID
  * @param {String} state node to be expanded or collapsed
  */
 function updateTree(currentNodeId,state){
-    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
-    if(state === "expand")
+    let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
+    if(state === "children expand")
     {
-        nodeExpand(currentNodeId,data);
-
+        nodeChildrenExpand(currentNodeId,data);
     }
-    else if(state === "collapse")
+    else if(state === "children collapse")
     {
-        nodeCollapse(currentNodeId);
+        nodeChildrenCollapse(currentNodeId);
+    }
+    else if (state === "parents expand")
+    {
+        nodeParentsExpand(currentNodeId,data);
     }
     for (let i = 0; i < currentTree.length; i++)
     {
@@ -233,10 +243,7 @@ function updateTree(currentNodeId,state){
             removeHiddenParents(currentTree[i]["parentIds"]);
         }
     }
-    for (let i = 0; i < currentTree.length; i++)
-    {
-        shownNodeChildrenMap[currentTree[i]["id"]] = updateShownNodeChildrenMap(currentTree[i]["id"],data)
-    }
+    updateShownNodeMap(treeData)
     drawTree(currentTree,"update");
     graph
         .attr('transform', zoomTransform);
@@ -346,16 +353,35 @@ function drawTree(drawData,state)
         .attr("x", nodeWidth - 20 - (5 / 2))
         .html("i");
 
-    ///Filter nodes with no children to add expand/collapse button
-    let nodesHaveChildren = nodes.filter(function(node){
-        return !leavesNodes.includes(node.data.id);
+    ///Filter nodes with no parent to add parents expand/collapse button
+    let rootsNodes = nodes.filter(function(node){
+        return !nodeParentsStateMap[node.data.id];
     })
-    nodesHaveChildren.append("circle")
+
+    rootsNodes.append("circle")
+        .attr("cx", nodeWidth/2)
+        .attr("cy", 0)
+        .attr("r", 12)
+        .on("mouseover", function () { d3.select(this).attr("r", 15); })
+        .on("mouseout", function () { d3.select(this).attr("r", 12); })
+        .on("click", onNodeParentsToggle);
+
+    rootsNodes.append("text")
+        .attr("class", "iText")
+        .attr("x", nodeWidth/2 - 7)
+        .attr("y",8.5)
+        .html("+")
+
+    ///Filter nodes with no children to add expand/collapse button
+    let leavesNodes = nodes.filter(function(node){
+        return !leavesNodesIds.includes(node.data.id);
+    })
+    leavesNodes.append("circle")
         .attr("cx", nodeWidth/2)
         .attr("cy", nodeHeight)
         .attr("r", 12)
         .attr("fill",function (d) {
-            switch (shownNodeChildrenMap[d.data.id]) {
+            switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
                     return "darkred";
                 default:
@@ -364,12 +390,12 @@ function drawTree(drawData,state)
         })
         .on("mouseover", function () { d3.select(this).attr("r", 15); })
         .on("mouseout", function () { d3.select(this).attr("r", 12); })
-        .on("click", onNodeToggleChildrenClicked);
+        .on("click", onNodeChildrenToggle);
 
-    nodesHaveChildren.append("text")
+    leavesNodes.append("text")
         .attr("class", "iText")
         .attr("x",function (d) {
-            switch (shownNodeChildrenMap[d.data.id]) {
+            switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
                     return nodeWidth/2 - 4.25;
                 default:
@@ -377,7 +403,7 @@ function drawTree(drawData,state)
             }
         })
         .attr("y",function (d) {
-            switch (shownNodeChildrenMap[d.data.id]) {
+            switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
                     return nodeHeight + 6;
                 default:
@@ -385,20 +411,21 @@ function drawTree(drawData,state)
             }
         })
         .html(function (d) {
-            switch (shownNodeChildrenMap[d.data.id]) {
+            switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
                     return "-";
                 default:
                     return "+";
             }
         })
+
 }
 /**
  * Search for nodes children and add them to the currentTree
  * @param {String} currentNodeId clicked node ID
  * @param {Array} data tree data
  */
-function nodeExpand(currentNodeId,data)
+function nodeChildrenExpand(currentNodeId,data)
 {
     let nodeChildren = [];
     for(let i = 0;i<data.length;i++)
@@ -428,14 +455,14 @@ function nodeExpand(currentNodeId,data)
         }
     }
     ///Link new nodes (clicked node children) to their existing children
-    linkNewNodesChildren(nodeChildren,data)
+    linkNewNodes(nodeChildren,data)
 }
 /**
  * Search for nodes children and remove them from currentTree
  * If there is a child has children, check if it should be removed, or it has other parents in the currentTree
  * @param {String} currentNodeId clicked node ID
  */
-function nodeCollapse(currentNodeId)
+function nodeChildrenCollapse(currentNodeId)
 {
     let childrenQueue = [];
     childrenQueue.push(currentNodeId);
@@ -468,7 +495,7 @@ function nodeCollapse(currentNodeId)
     {
         if(shownNodesMap[currentTree[itr]["id"]] === 0)
         {
-            shownNodeChildrenMap[currentTree[itr]["id"]] = 0;
+            nodeChildrenStateMap[currentTree[itr]["id"]] = 0;
             currentTree.splice(itr, 1);
         }
         else{
@@ -499,24 +526,31 @@ function removeHiddenParents(parents)
 
 /**
  * Update expand/collapse state of node
- * @param {String} currentNodeId node ID
  * @param {Array} data tree data
  */
-function updateShownNodeChildrenMap(currentNodeId,data)
+function updateShownNodeMap(data)
 {
-    if(getNodeChildren(currentNodeId,data).length === getNodeChildren(currentNodeId,currentTree).length)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
+    for (let i = 0; i < currentTree.length; i++) {
+        if (getNodeChildren(currentTree[i]["id"], data).length === getNodeChildren(currentTree[i]["id"], currentTree).length) {
+            nodeChildrenStateMap[currentTree[i]["id"]] = 1;
+        } else {
+            nodeChildrenStateMap[currentTree[i]["id"]] = 0;
+        }
+        if (getNodeParents(currentTree[i]["id"], data).length === getNodeParents(currentTree[i]["id"], currentTree).length) {
+            nodeParentsStateMap[currentTree[i]["id"]] = 1;
+        } else {
+            nodeParentsStateMap[currentTree[i]["id"]] = 0;
+        }
     }
 }
-
+/**
+ * Expand node found by search bar
+ * It links the node to its existing parents and expand its children
+ * @param {Object} node node
+ */
 function expandNodeTree(node)
 {
-    let data = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
+    let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
     if(shownNodesMap[node.id] !==1)
     {
         shownNodesMap[node.id] = 1;
@@ -546,11 +580,48 @@ function expandNodeTree(node)
             currentTree.push(getNodeById(child.id));
         }
     })
-    linkNewNodesChildren(children,data);
+    linkNewNodes(children,data);
     updateTree(node.id,"node tree")
 }
 
-function linkNewNodesChildren(nodes,data)
+
+/**
+ * Search for nodes parents and add them to the currentTree
+ * @param {String} currentNodeId clicked node ID
+ * @param {Array} data tree data
+ */
+function nodeParentsExpand(currentNodeId,data)
+{
+    let node = getNodeById(currentNodeId);
+    let nodeParents = node.parentIds;
+    nodeParents.forEach(function(parentId){
+        if(shownNodesMap[parentId] === 0)
+        {
+            currentTree.push(getNodeById(parentId));
+            shownNodesMap[parentId] = 1;
+            linkNewNodes([parentId],data);
+
+        }
+        else // if the parent is already shown, add parent id to the current node only
+        {
+            for(let k=0;k<currentTree.length;k++)
+            {
+                if(currentNodeId === currentTree[k]["id"] && !currentTree[k]["parentIds"].includes(parentId))
+                {
+                    currentTree[k]["parentIds"].push(parentId);
+                    break;
+                }
+            }
+        }
+    })
+}
+
+/**
+ * Link new nodes to the current shown nodes (new parents to their existing children or new children to their existing parents)
+ * @param {Array} nodes new nodes
+ * @param {Array} data tree data
+ */
+function linkNewNodes(nodes,data)
 {
     for(let i = 0;i<nodes.length;i++)
     {
