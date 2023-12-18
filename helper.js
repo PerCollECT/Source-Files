@@ -235,6 +235,7 @@ function addAutoComplete(input) {
       if (includes) {
         tagsTitlesMap[e].forEach(function(title){
           if(titlesMap[title] === 0){
+            titlesMap[title] = 1;
             let divEntry = document.createElement("div");
             divEntry.innerHTML = title;
             divEntry.innerHTML += `<input type='hidden' value='${title}'>`;
