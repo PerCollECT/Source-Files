@@ -17,6 +17,7 @@ let rootsNodesIds = [];
 let rootsNodesCoord = {};
 let currentTree = [];
 let zoomTransform;
+let currentHighlightedNodeId;
 
 // Define the zoom function for the zoomable tree
 var zoom = d3.zoom()
@@ -173,9 +174,10 @@ function initGraph() {
 }
 /**
  * Performs graph update. Updates nodes and links.
- * @param {Number} currentNodeId
+ * @param {String} currentNodeId
  */
  function updateGraphPlot(currentNodeId) {
+  currentHighlightedNodeId = currentNodeId;
   graphs = graph.selectAll("path");
   paths = graphs._groups[0];
   paths.forEach(function (d) {
@@ -200,7 +202,7 @@ function initGraph() {
  * @param {Object} d clicked node
  */
 function onNodeChildrenToggle(d){
-    let currentNodeId = d.currentTarget.__data__.data.id;
+    let currentNodeId = d.data.id;
     let state;
     if(nodeChildrenStateMap[currentNodeId])
     {
@@ -249,7 +251,7 @@ function updateTree(currentNodeId,state){
     }
     updateShownNodeMap(treeData)
     highlightSelectedNode(currentNodeId);
-    updateTreeGraph(currentTree);
+    updateTreeGraph(currentTree,currentNodeId);
     graph
         .attr('transform', zoomTransform);
 }
@@ -264,14 +266,15 @@ function drawTree(drawData,state)
     generateTreeLayout(drawData);
     const { width, height } = layout(dag);
     let sizeFactor = width/window.innerWidth
+    currentHighlightedNodeId = "-1";
 
     // --------------------------------
     // This code only handles rendering
     // --------------------------------
-    keepTopLayersNodesUp();
+    // keepTopLayersNodesUp();
     svgSelection = d3.select("svg");
     svgSelection.selectAll('*').remove();
-    svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
+    svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
 
@@ -376,10 +379,11 @@ function drawTree(drawData,state)
     let leavesNodes = nodes.filter(function(node){
         return !leavesNodesIds.includes(node.data.id);
     })
-    leavesNodes.append("circle")
-        .attr("cx", nodeWidth/2)
-        .attr("cy", nodeHeight)
-        .attr("r", 12)
+    leavesNodes.append("rect")
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2- 25)
+        .attr("y", nodeHeight - 10)
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
@@ -388,35 +392,74 @@ function drawTree(drawData,state)
                     return "darkblue";
             }
         })
-        .on("mouseover", function () { d3.select(this).attr("r", 15); })
-        .on("mouseout", function () { d3.select(this).attr("r", 12); })
-        .on("click", onNodeChildrenToggle);
+        .attr("stroke-width","0")
+
+    leavesNodes
+        .append("rect")
+        .attr("width", 25)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2- 25)
+        .attr("y", nodeHeight - 10)
+        .attr("class", "node-expand-button")  // Add a class for styling if needed
+        .attr("fill",function (d) {
+            switch (nodeChildrenStateMap[d.data.id]) {
+                case 1:
+                    return "grey";
+                default:
+                    return "darkgreen";
+            }
+        })
+        .on("click", function(event,d){
+            if(!(nodeChildrenStateMap[d.data.id]))
+            {
+                onNodeChildrenToggle(d);
+            }
+        });
+
+    leavesNodes
+        .append("rect")
+        .attr("width", 25)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2)
+        .attr("y", nodeHeight - 10)
+        .attr("class", "node-collapse-button")  // Add a class for styling if needed
+        .attr("fill",function (d) {
+            switch (nodeChildrenStateMap[d.data.id]) {
+                case 1:
+                    return "darkred";
+                default:
+                    return "grey";
+            }
+        })
+        .on("click", function(event,d){
+            if( (nodeChildrenStateMap[d.data.id]))
+            {
+                onNodeChildrenToggle(d);
+            }
+        });
 
     leavesNodes.append("text")
         .attr("class", "iText")
         .attr("x",function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return nodeWidth/2 - 4.25;
-                default:
-                    return nodeWidth/2 - 7;
-            }
+            return nodeWidth/2 - 20;
         })
         .attr("y",function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return nodeHeight + 6;
-                default:
                     return nodeHeight + 8.5;
-            }
         })
         .html(function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return "-";
-                default:
-                    return "+";
-            }
+            return "+";
+        })
+
+    leavesNodes.append("text")
+        .attr("class", "iText")
+        .attr("x",function (d) {
+            return nodeWidth/2 + 8;
+        })
+        .attr("y",function (d) {
+            return nodeHeight + 6.5;
+        })
+        .html(function (d) {
+            return "-";
         })
 
 }
@@ -644,20 +687,19 @@ function linkNewNodes(nodes,data)
 /**
  * update tree graph with nodes transition effect
  * @param {Array} drawData tree data
+ * @param {String} currentNodeId tree data
  */
-function updateTreeGraph(drawData)
+function updateTreeGraph(drawData,currentNodeId)
 {
     generateTreeLayout(drawData);
     layout(dag);
-    keepTopLayersNodesUp();
-    // svgSelection = d3.select("svg");
-    // graph = svgSelection.select("g");
-    // graph
-    //     .select(".paths-list")
-    //     .selectAll("path")
-    //     .data(dag.links())
-    //     .attr("d", ({ points }) => line(points))
-    // graph.selectAll('path').remove();
+    let highlight = false;
+    if(currentHighlightedNodeId === currentNodeId)
+    {
+        highlight = true;
+    }
+    // keepTopLayersNodesUp();
+
     // Select nodes
     nodes = graph
         .select(".nodes-list")
@@ -676,8 +718,11 @@ function updateTreeGraph(drawData)
             if(completeTransitions===nodes.size())
             {
                 drawTree(drawData,"update");
-                graph
-                    .attr('transform', zoomTransform);
+                graph.attr('transform', zoomTransform);
+                if(highlight)
+                {
+                    updateGraphPlot(currentNodeId);
+                }
             }
         });
 }
