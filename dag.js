@@ -200,11 +200,12 @@ function initGraph() {
 /**
  * Toggle between expanding and collapsing node children
  * @param {Object} d clicked node
+ * @param {String} command identify which action should be executed
  */
-function onNodeChildrenToggle(d){
+function onNodeChildrenToggle(d,command){
     let currentNodeId = d.data.id;
     let state;
-    if(nodeChildrenStateMap[currentNodeId])
+    if(command === "collapse")
     {
         state = "children collapse";
         nodeChildrenStateMap[currentNodeId] = 0;
@@ -403,16 +404,17 @@ function drawTree(drawData,state)
         .attr("class", "node-expand-button")  // Add a class for styling if needed
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return "grey";
-                default:
+                case 0:
+                case 2:
                     return "darkgreen";
+                default:
+                    return "grey";
             }
         })
         .on("click", function(event,d){
-            if(!(nodeChildrenStateMap[d.data.id]))
+            if((nodeChildrenStateMap[d.data.id]) === 0 || nodeChildrenStateMap[d.data.id] === 2)
             {
-                onNodeChildrenToggle(d);
+                onNodeChildrenToggle(d,"expand");
             }
         });
 
@@ -426,6 +428,7 @@ function drawTree(drawData,state)
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
+                case 2:
                     return "darkred";
                 default:
                     return "grey";
@@ -434,7 +437,7 @@ function drawTree(drawData,state)
         .on("click", function(event,d){
             if( (nodeChildrenStateMap[d.data.id]))
             {
-                onNodeChildrenToggle(d);
+                onNodeChildrenToggle(d,"collapse");
             }
         });
 
@@ -576,7 +579,10 @@ function updateShownNodeMap(data)
     for (let i = 0; i < currentTree.length; i++) {
         if (getNodeChildren(currentTree[i]["id"], data).length === getNodeChildren(currentTree[i]["id"], currentTree).length) {
             nodeChildrenStateMap[currentTree[i]["id"]] = 1;
-        } else {
+        } else if (getNodeChildren(currentTree[i]["id"], currentTree).length > 0 ){
+            nodeChildrenStateMap[currentTree[i]["id"]] = 2;
+        }
+        else{
             nodeChildrenStateMap[currentTree[i]["id"]] = 0;
         }
         if (getNodeParents(currentTree[i]["id"], data).length === getNodeParents(currentTree[i]["id"], currentTree).length) {
