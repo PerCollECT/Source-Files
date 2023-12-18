@@ -403,10 +403,11 @@ function drawTree(drawData,state)
         .attr("class", "node-expand-button")  // Add a class for styling if needed
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return "grey";
-                default:
+                case 0:
+                case 2:
                     return "darkgreen";
+                default:
+                    return "grey";
             }
         })
         .on("click", function(event,d){
@@ -426,6 +427,7 @@ function drawTree(drawData,state)
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
+                case 2:
                     return "darkred";
                 default:
                     return "grey";
@@ -576,7 +578,10 @@ function updateShownNodeMap(data)
     for (let i = 0; i < currentTree.length; i++) {
         if (getNodeChildren(currentTree[i]["id"], data).length === getNodeChildren(currentTree[i]["id"], currentTree).length) {
             nodeChildrenStateMap[currentTree[i]["id"]] = 1;
-        } else {
+        } else if (getNodeChildren(currentTree[i]["id"], currentTree).length > 0 ){
+            nodeChildrenStateMap[currentTree[i]["id"]] = 2;
+        }
+        else{
             nodeChildrenStateMap[currentTree[i]["id"]] = 0;
         }
         if (getNodeParents(currentTree[i]["id"], data).length === getNodeParents(currentTree[i]["id"], currentTree).length) {
