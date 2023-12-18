@@ -200,11 +200,12 @@ function initGraph() {
 /**
  * Toggle between expanding and collapsing node children
  * @param {Object} d clicked node
+ * @param {String} command identify which action should be executed
  */
-function onNodeChildrenToggle(d){
+function onNodeChildrenToggle(d,command){
     let currentNodeId = d.data.id;
     let state;
-    if(nodeChildrenStateMap[currentNodeId])
+    if(command === "collapse")
     {
         state = "children collapse";
         nodeChildrenStateMap[currentNodeId] = 0;
@@ -411,9 +412,9 @@ function drawTree(drawData,state)
             }
         })
         .on("click", function(event,d){
-            if(!(nodeChildrenStateMap[d.data.id]))
+            if((nodeChildrenStateMap[d.data.id]) === 0 || nodeChildrenStateMap[d.data.id] === 2)
             {
-                onNodeChildrenToggle(d);
+                onNodeChildrenToggle(d,"expand");
             }
         });
 
@@ -436,7 +437,7 @@ function drawTree(drawData,state)
         .on("click", function(event,d){
             if( (nodeChildrenStateMap[d.data.id]))
             {
-                onNodeChildrenToggle(d);
+                onNodeChildrenToggle(d,"collapse");
             }
         });
 
