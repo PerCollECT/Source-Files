@@ -13,8 +13,11 @@ let shownNodesMap = {};
 let nodeChildrenStateMap = {};
 let nodeParentsStateMap = {};
 let leavesNodesIds = [];
+let rootsNodesIds = [];
+let rootsNodesCoord = {};
 let currentTree = [];
 let zoomTransform;
+let currentHighlightedNodeId;
 
 // Define the zoom function for the zoomable tree
 var zoom = d3.zoom()
@@ -48,6 +51,8 @@ function initGraph() {
             shownNodesMap[data[i]["id"]] = 1;
             currentTree.push(data[i]);
             nodeChildrenExpand(data[i]["id"],data)
+            rootsNodesIds.push(data[i]["id"]);
+            rootsNodesCoord[data[i]["id"]] = [];
         }
         else{
             if(shownNodesMap[data[i]["id"]] !== 1)
@@ -169,9 +174,10 @@ function initGraph() {
 }
 /**
  * Performs graph update. Updates nodes and links.
- * @param {Number} currentNodeId
+ * @param {String} currentNodeId
  */
  function updateGraphPlot(currentNodeId) {
+  currentHighlightedNodeId = currentNodeId;
   graphs = graph.selectAll("path");
   paths = graphs._groups[0];
   paths.forEach(function (d) {
@@ -196,7 +202,7 @@ function initGraph() {
  * @param {Object} d clicked node
  */
 function onNodeChildrenToggle(d){
-    let currentNodeId = d.currentTarget.__data__.data.id;
+    let currentNodeId = d.data.id;
     let state;
     if(nodeChildrenStateMap[currentNodeId])
     {
@@ -244,37 +250,35 @@ function updateTree(currentNodeId,state){
         }
     }
     updateShownNodeMap(treeData)
-    drawTree(currentTree,"update");
+    highlightSelectedNode(currentNodeId);
+    updateTreeGraph(currentTree,currentNodeId);
     graph
         .attr('transform', zoomTransform);
 }
 
 /**
  * draw the tree elements
- * @param {Array} drawData node ID
+ * @param {Array} drawData current tree data
  * @param {String} state initialize or update the tree
  */
 function drawTree(drawData,state)
 {
-    dag = d3.dagStratify()(drawData);
-    layout = d3
-        .sugiyama() // base layout
-        .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
-        .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
+    generateTreeLayout(drawData);
     const { width, height } = layout(dag);
     let sizeFactor = width/window.innerWidth
+    currentHighlightedNodeId = "-1";
 
     // --------------------------------
     // This code only handles rendering
     // --------------------------------
+    // keepTopLayersNodesUp();
     svgSelection = d3.select("svg");
     svgSelection.selectAll('*').remove();
-    svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
+    svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
 
     defs = graph.append("defs"); // For gradients
-
     // Plot edges
     graph
         .append("g")
@@ -297,8 +301,7 @@ function drawTree(drawData,state)
         .enter()
         .append("g")
         .attr("class", "node")
-        .attr("transform", ({ x, y }) => `translate(${x}, ${y})`);
-
+        .attr("transform", ({x,y}) => `translate(${x}, ${y})`);
     // Plot nodes
     nodes
         .append("rect")
@@ -376,10 +379,11 @@ function drawTree(drawData,state)
     let leavesNodes = nodes.filter(function(node){
         return !leavesNodesIds.includes(node.data.id);
     })
-    leavesNodes.append("circle")
-        .attr("cx", nodeWidth/2)
-        .attr("cy", nodeHeight)
-        .attr("r", 12)
+    leavesNodes.append("rect")
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2- 25)
+        .attr("y", nodeHeight - 10)
         .attr("fill",function (d) {
             switch (nodeChildrenStateMap[d.data.id]) {
                 case 1:
@@ -388,35 +392,74 @@ function drawTree(drawData,state)
                     return "darkblue";
             }
         })
-        .on("mouseover", function () { d3.select(this).attr("r", 15); })
-        .on("mouseout", function () { d3.select(this).attr("r", 12); })
-        .on("click", onNodeChildrenToggle);
+        .attr("stroke-width","0")
+
+    leavesNodes
+        .append("rect")
+        .attr("width", 25)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2- 25)
+        .attr("y", nodeHeight - 10)
+        .attr("class", "node-expand-button")  // Add a class for styling if needed
+        .attr("fill",function (d) {
+            switch (nodeChildrenStateMap[d.data.id]) {
+                case 1:
+                    return "grey";
+                default:
+                    return "darkgreen";
+            }
+        })
+        .on("click", function(event,d){
+            if(!(nodeChildrenStateMap[d.data.id]))
+            {
+                onNodeChildrenToggle(d);
+            }
+        });
+
+    leavesNodes
+        .append("rect")
+        .attr("width", 25)
+        .attr("height", 20)
+        .attr("x", nodeWidth/2)
+        .attr("y", nodeHeight - 10)
+        .attr("class", "node-collapse-button")  // Add a class for styling if needed
+        .attr("fill",function (d) {
+            switch (nodeChildrenStateMap[d.data.id]) {
+                case 1:
+                    return "darkred";
+                default:
+                    return "grey";
+            }
+        })
+        .on("click", function(event,d){
+            if( (nodeChildrenStateMap[d.data.id]))
+            {
+                onNodeChildrenToggle(d);
+            }
+        });
 
     leavesNodes.append("text")
         .attr("class", "iText")
         .attr("x",function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return nodeWidth/2 - 4.25;
-                default:
-                    return nodeWidth/2 - 7;
-            }
+            return nodeWidth/2 - 20;
         })
         .attr("y",function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return nodeHeight + 6;
-                default:
                     return nodeHeight + 8.5;
-            }
         })
         .html(function (d) {
-            switch (nodeChildrenStateMap[d.data.id]) {
-                case 1:
-                    return "-";
-                default:
-                    return "+";
-            }
+            return "+";
+        })
+
+    leavesNodes.append("text")
+        .attr("class", "iText")
+        .attr("x",function (d) {
+            return nodeWidth/2 + 8;
+        })
+        .attr("y",function (d) {
+            return nodeHeight + 6.5;
+        })
+        .html(function (d) {
+            return "-";
         })
 
 }
@@ -640,4 +683,112 @@ function linkNewNodes(nodes,data)
             }
         }
     }
+}
+/**
+ * update tree graph with nodes transition effect
+ * @param {Array} drawData tree data
+ * @param {String} currentNodeId tree data
+ */
+function updateTreeGraph(drawData,currentNodeId)
+{
+    generateTreeLayout(drawData);
+    layout(dag);
+    let highlight = false;
+    if(currentHighlightedNodeId === currentNodeId)
+    {
+        highlight = true;
+    }
+    // keepTopLayersNodesUp();
+
+    // Select nodes
+    nodes = graph
+        .select(".nodes-list")
+        .selectAll(".node")
+        .data(dag.descendants(), d => d.data.id)
+    let completeTransitions = 0;
+    nodes
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .attr("transform", function(node){
+           return `translate(${node.x}, ${node.y})`
+        })
+        .on("end", function(){
+            completeTransitions++;
+            if(completeTransitions===nodes.size())
+            {
+                drawTree(drawData,"update");
+                graph.attr('transform', zoomTransform);
+                if(highlight)
+                {
+                    updateGraphPlot(currentNodeId);
+                }
+            }
+        });
+}
+
+/**
+ * highlight selected node
+ * @param {String} currentNodeId node ID
+ */
+function highlightSelectedNode(currentNodeId)
+{
+    let node = nodes.filter(function(node){
+        return node.data.id === currentNodeId;
+    })
+    node.select("rect").style("fill","rgba(255,255,0,0.5)");
+}
+
+/**
+ * generate tree layout
+ * @param {Array} treeData tree data
+ */
+function generateTreeLayout(treeData)
+{
+    dag = d3.dagStratify()(treeData);
+    layout = d3
+        .sugiyama() // base layout
+        .decross(d3.decrossTwoLayer().order(d3.twolayerAgg())) // minimize number of crossings
+        .nodeSize((node) => [(node ? 3.6 : 0.25) * nodeWidth, 2 * nodeWidth]); // set node size instead of constraining to fit
+}
+
+/**
+ * modify top layer nodes positions to keep them at the top
+ */
+function keepTopLayersNodesUp()
+{
+    let rootsNodesY = 100000;
+    let rootsNodesX = [];
+    //get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
+    dag.descendants().forEach(function(node){
+        if(node.y<rootsNodesY)
+        {
+            rootsNodesY = node.y;
+        }
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            rootsNodesX.push(node.x);
+        }
+    })
+    rootsNodesX.sort(function(a, b){return a - b});
+    let xStep = (rootsNodesX[rootsNodesIds.length - 1] - rootsNodesX[0])/rootsNodesIds.length;//horizontal space between roots nodes
+    let i = 0;
+    //Set the new coordinates to the roots nodes
+    dag.descendants().forEach(function(node){
+        if(rootsNodesIds.includes(node.data.id))
+        {
+            node.y = rootsNodesY;
+            node.x = rootsNodesX[0] + i*xStep;
+            rootsNodesCoord[node.data.id] = [node.x,node.y]
+            i+=1;
+        }
+    })
+    //Set the new coordinates to the roots nodes links
+    dag.links().forEach(function(node){
+        if(rootsNodesIds.includes(node.source.data.id))
+        {
+            node.points[0].x = rootsNodesCoord[node.source.data.id][0];
+            node.points[0].y = rootsNodesCoord[node.source.data.id][1];
+        }
+    })
 }

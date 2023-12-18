@@ -245,6 +245,22 @@ body {
   font-weight: bolder;
 }
 
+.node-expand-button{
+  border: none;
+  background-color: darkgreen;
+  width:25px;
+  height:20px;
+  vertical-align: middle;
+}
+
+.node-collapse-button{
+  border: none;
+  background-color: darkred;
+  width:25px;
+  height:20px;
+  text-align: center;
+}
+
 /* legend  */
 .content .legend {
   width: auto;
