@@ -254,7 +254,7 @@ body {
   margin-left: var(--legend-margin-lr);
   margin-right: var(--legend-margin-lr);
   position:fixed;
-  bottom:26%;
+  top:0;
   right:0;
   user-select: none;
 }
