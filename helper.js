@@ -255,12 +255,9 @@ function addAutoComplete(input) {
   function checkSearchBarValue(data,searchVal)
   {
     let includes = false;
-    let parts = data.split(/[ ,]+/);
-    parts.forEach(function (p) {
-      if (p.toLowerCase().includes(searchVal.toLowerCase())) {
-        includes = true;
-      }
-    });
+    if (data.toLowerCase().includes(searchVal.toLowerCase())) {
+      includes = true;
+    }
     return includes;
   }
 
