@@ -275,7 +275,13 @@ function drawTree(drawData,state)
     // keepTopLayersNodesUp();
     svgSelection = d3.select("svg");
     svgSelection.selectAll('*').remove();
-    svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
+    if(state === "expand tree")
+    {
+        svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
+    }
+    else{
+        svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
+    }
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
 
