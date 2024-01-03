@@ -77,6 +77,14 @@ function initGraph() {
     }
     updateShownNodeMap(treeData);
     drawTree(currentTree,"init");
+    if(zoomTransform === undefined)
+    {
+        zoomTransform = d3.zoomIdentity
+    }
+    zoomTransform.k = 2.2;
+    zoomTransform.x = -2000;
+    zoomTransform.y = 2000;
+    graph.attr('transform', zoomTransform);
 }
 
 /**
@@ -832,10 +840,11 @@ function collapseTree()
     rootsNodesIds = [];
     rootsNodesCoord = {};
     initGraph();
-    if(zoomTransform !== undefined)
-    {
-        zoomTransform.k = 1;
-        zoomTransform.x = 0;
-        zoomTransform.y = 0;
-    }
+    // if(zoomTransform !== undefined)
+    // {
+    //     zoomTransform.k = 3;
+    //     zoomTransform.x = 0;
+    //     zoomTransform.y = 0;
+    //     graph.attr('transform', zoomTransform);
+    // }
 }
