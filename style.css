@@ -265,14 +265,16 @@ body {
 .content .legend {
   width: auto;
   height: auto;
+  padding-top: 20px;
   padding-bottom: 20px;
-  margin-top: 20px;
+  /*margin-top: 20px;*/
   margin-left: var(--legend-margin-lr);
-  margin-right: var(--legend-margin-lr);
+  /*margin-right: var(--legend-margin-lr);*/
   position:fixed;
   top:0;
   right:0;
   user-select: none;
+  background-color: white;
 }
 
 .legend .circle {
@@ -296,6 +298,50 @@ body {
   line-height: 20px;
   float:left;
 }
+
+/* expand/collapse tree  */
+.content .tree_buttons_container{
+  position:fixed;
+  top:60px;
+  right:20px;
+}
+
+.content #expand_tree_btn{
+  background-color: green;
+}
+
+.content #collapse_tree_btn{
+  background-color: firebrick;
+}
+
+.content .tree_btn{
+  width: 100px;
+  height: 40px;
+  margin-bottom: 10px;
+  text-align: center;
+  line-height: 35px;
+  font-size: 14px;
+  font-weight:bold;
+  color: #fff;
+  border-radius: 10px;
+  border:2px solid var(--main-color);
+  cursor: pointer;
+}
+
+/*.content .tree_btn{*/
+/*  width: 100px;*/
+/*  height: 40px;*/
+/*  text-align: center;*/
+/*  line-height: 35px;*/
+/*  font-size: 14px;*/
+/*  font-weight:bold;*/
+/*  color: #fff;*/
+/*  border-radius: 10px;*/
+/*  border:2px solid var(--main-color);*/
+/*  cursor: pointer;*/
+/*}*/
+
+
 /* infobox  */
 .content .info_box_container {
   resize: vertical;
@@ -338,6 +384,7 @@ body {
   color: var(--main-color-sec);
   display: block;
   font-weight: bold;
+  user-select: none;
 }
 
 .content #info_box .info a {

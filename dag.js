@@ -699,11 +699,11 @@ function updateTreeGraph(drawData,currentNodeId)
 {
     generateTreeLayout(drawData);
     layout(dag);
-    let highlight = false;
-    if(currentHighlightedNodeId === currentNodeId)
-    {
-        highlight = true;
-    }
+    // let highlight = false;
+    // if(currentHighlightedNodeId === currentNodeId)
+    // {
+    //     highlight = true;
+    // }
     // keepTopLayersNodesUp();
 
     // Select nodes
@@ -725,10 +725,10 @@ function updateTreeGraph(drawData,currentNodeId)
             {
                 drawTree(drawData,"update");
                 graph.attr('transform', zoomTransform);
-                if(highlight)
-                {
+                // if(highlight)
+                // {
                     updateGraphPlot(currentNodeId);
-                }
+                // }
             }
         });
 }
@@ -797,4 +797,39 @@ function keepTopLayersNodesUp()
             node.points[0].y = rootsNodesCoord[node.source.data.id][1];
         }
     })
+}
+
+function expandTree()
+{
+    currentTree = structuredClone(treeData);
+    for(let i = 0;i<currentTree.length;++i)
+    {
+        shownNodesMap[currentTree[i]["id"]] = 1;
+    }
+    updateShownNodeMap(currentTree);
+    if(zoomTransform !== undefined)
+    {
+        zoomTransform.k = 1;
+        zoomTransform.x = 0;
+        zoomTransform.y = 0;
+    }
+    drawTree(currentTree,"expand tree");
+    graph.attr('transform', zoomTransform);
+
+}
+
+function collapseTree()
+{
+    currentTree = [];
+    shownNodesMap = {};
+    leavesNodesIds = [];
+    rootsNodesIds = [];
+    rootsNodesCoord = {};
+    initGraph();
+    if(zoomTransform !== undefined)
+    {
+        zoomTransform.k = 1;
+        zoomTransform.x = 0;
+        zoomTransform.y = 0;
+    }
 }
