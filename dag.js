@@ -721,18 +721,14 @@ function updateTreeGraph(drawData,currentNodeId)
     graph.select(".paths-list").selectAll("*").remove();
     generateTreeLayout(drawData);
     layout(dag);
-    // let highlight = false;
-    // if(currentHighlightedNodeId === currentNodeId)
-    // {
-    //     highlight = true;
-    // }
     // keepTopLayersNodesUp();
 
-    // Select nodes
-    let removedNodes = nodes.filter(function(node){
+    // Remove collapsed nodes before starting the animation
+    let collapsedNodes = nodes.filter(function(node){
         return shownNodesMap[node.data.id] === 0;
     })
-    removedNodes.remove();
+    collapsedNodes.remove();
+
     nodes = graph
         .select(".nodes-list")
         .selectAll(".node")
@@ -742,12 +738,6 @@ function updateTreeGraph(drawData,currentNodeId)
         .transition()
         .duration(1000)
         .ease(d3.easeLinear)
-        // .attr("transform", function(node){
-        //     zoomTransform.x+=1000;
-        //     zoomTransform.y+=1000;
-        //     graph.attr('transform', zoomTransform);
-        //     return `translate(${node.x}, ${node.y})`
-        // })
         .attrTween("transform", function (node) {
             // Your translation function
             let translateFunction = d3.interpolateString(this.getAttribute("transform"), `translate(${node.x}, ${node.y})`);
