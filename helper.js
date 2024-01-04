@@ -407,3 +407,34 @@ function addInfoBoxResizeBar()
   }
 }
 
+function addExpandAndCollapseTreeButtons()
+{
+
+  const buttonsContainer = document.createElement('div');
+  buttonsContainer.classList.add('tree_buttons_container');
+
+  const expandButton = document.createElement('div');
+  expandButton.classList.add('tree_btn');
+  expandButton.id = "expand_tree_btn";
+  let expandText = document.createTextNode('Expand Tree');
+  expandButton.appendChild(expandText);
+  expandButton.addEventListener('click',function(){
+    expandTree();
+  });
+
+  const collapseButton = document.createElement('div');
+  collapseButton.classList.add('tree_btn');
+  collapseButton.id = "collapse_tree_btn";
+  let collapseText = document.createTextNode('Collapse Tree');
+  collapseButton.appendChild(collapseText);
+  collapseButton.addEventListener('click',function(){
+    collapseTree();
+  });
+  buttonsContainer.appendChild(expandButton);
+  buttonsContainer.appendChild(collapseButton);
+
+  const content = document.getElementsByClassName('content');
+  const infoBox = document.getElementById('info_box');
+
+  content[0].insertBefore(buttonsContainer,infoBox);
+}
