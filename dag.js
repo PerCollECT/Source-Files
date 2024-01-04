@@ -261,8 +261,8 @@ function updateTree(currentNodeId,state){
     updateShownNodeMap(treeData)
     highlightSelectedNode(currentNodeId);
     updateTreeGraph(currentTree,currentNodeId);
-    graph
-        .attr('transform', zoomTransform);
+    // graph
+    //     .attr('transform', zoomTransform);
 }
 
 /**
@@ -714,10 +714,14 @@ function updateTreeGraph(drawData,currentNodeId)
     let currentNode = nodes.filter(function(node){
         return node.data.id === currentNodeId;
     })
-    let currentX = currentNode._groups[0][0].__data__.x
-    let currentY = currentNode._groups[0][0].__data__.y
-    let currentZoomX = zoomTransform.x;
-    let currentZoomY = zoomTransform.y;
+    let currentX,currentY,currentZoomX,currentZoomY;
+    if(currentNode._groups[0].length !== 0 ){
+        currentX = currentNode._groups[0][0].__data__.x
+        currentY = currentNode._groups[0][0].__data__.y
+        currentZoomX = zoomTransform.x;
+        currentZoomY = zoomTransform.y;
+    }
+
     graph.select(".paths-list").selectAll("*").remove();
     generateTreeLayout(drawData);
     layout(dag);
