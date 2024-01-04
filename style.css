@@ -281,8 +281,8 @@ body {
   width: 16px;
   height: 16px;
   text-align: center;
-  font-size: 8px;
-  line-height:150px;
+  font-size: 16px;
+  line-height:13px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid var(--main-color);
@@ -296,6 +296,17 @@ body {
   margin-right: 10px;
   font-size: 12px;
   line-height: 20px;
+  float:left;
+}
+
+.legend .rectangle {
+  width: 25px;
+  height: 20px;
+  text-align: center;
+  font-size: 16px;
+  line-height:18px;
+  color: #fff;
+  border: 1px solid var(--main-color);
   float:left;
 }
 
@@ -327,20 +338,6 @@ body {
   border:2px solid var(--main-color);
   cursor: pointer;
 }
-
-/*.content .tree_btn{*/
-/*  width: 100px;*/
-/*  height: 40px;*/
-/*  text-align: center;*/
-/*  line-height: 35px;*/
-/*  font-size: 14px;*/
-/*  font-weight:bold;*/
-/*  color: #fff;*/
-/*  border-radius: 10px;*/
-/*  border:2px solid var(--main-color);*/
-/*  cursor: pointer;*/
-/*}*/
-
 
 /* infobox  */
 .content .info_box_container {
@@ -374,8 +371,6 @@ body {
   margin-right: var(--table-margin-lr);
   margin-bottom: 50px;
   border-top: 1px solid #d6d6d4;
-  /*overflow: hidden;*/
-  /*box-sizing: content-box;*/
 }
 
 .content #info_box .info .infoHead {

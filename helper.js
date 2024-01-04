@@ -146,17 +146,44 @@ function addNodeInfos(node, id) {
 function addLegend() {
   if ($("#tree_view").innerHTML == '') return;
 
-  let colors = ["#f4f4f9", "#ace3b5", "#b4acd2"];
-  let names = ["Effects", "System independent cause", "Design parameter"]
+  let colors = ["#f4f4f9", "#ace3b5", "#b4acd2", "#000000"];
+  let treeButtonsColors = ["#8B0000FF", "#006400FF"];
+  let names = ["Effects", "System independent cause", "Design parameter", "Expand node parents"]
+  let treeButtonsNames = ["Expand node children", "Collapse node children"];
+  let text = "";
   for (let i = 0; i < colors.length; ++i) {
+    if(i === 3)
+    {
+      text = "+"
+    }
     $("<div></div>")
       .addClass("circle")
       .css("background", colors[i])
+      .html(text)
       .appendTo($("#legend"));
     $("<div></div>")
       .addClass("circle-text")
       .html(names[i])
       .appendTo($("#legend"));
+  }
+  for (let i = 0; i < treeButtonsNames.length; ++i) {
+    if(i===0)
+    {
+      text = "+";
+    }
+    else
+    {
+      text = "-";
+    }
+    $("<div></div>")
+        .addClass("rectangle")
+        .css("background", treeButtonsColors[i])
+        .html(text)
+        .appendTo($("#legend"));
+    $("<div></div>")
+        .addClass("circle-text")
+        .html(treeButtonsNames[i])
+        .appendTo($("#legend"));
   }
 }
 
