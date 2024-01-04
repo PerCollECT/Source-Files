@@ -59,7 +59,8 @@ function addNodeInfos(node, id) {
     "description",
     "number of parent nodes",
     "number of child nodes",
-    "references"];
+    "references",
+    "tags"];
 
   attributesToShow.forEach(function (a) {
     let value = [];
@@ -93,7 +94,25 @@ function addNodeInfos(node, id) {
             e.splice(2, 2);
           }
         });
-        break;      
+        break;
+      case "tags":
+        try{
+          let tagsLine = ["Tags"];
+          let tags = "";
+          node.tags.forEach(function(tag,idx,array){
+            tags += tag;
+            if(idx !== array.length - 1)
+            {
+              tags += ", ";
+            }
+          })
+          tagsLine.push(tags);
+          value.push(tagsLine);
+        }
+        catch{
+          console.log("tags property doesn't exist")
+        }
+        break;
       default:
         value.push([a, node[a].replaceAll("\\n", "<br><br>")]);
     }
