@@ -711,6 +711,14 @@ function linkNewNodes(nodes,data)
  */
 function updateTreeGraph(drawData,currentNodeId)
 {
+    let currentNode = nodes.filter(function(node){
+        return node.data.id === currentNodeId;
+    })
+    let currentX = currentNode._groups[0][0].__data__.x
+    let currentY = currentNode._groups[0][0].__data__.y
+    let currentZoomX = zoomTransform.x;
+    let currentZoomY = zoomTransform.y;
+    graph.select(".paths-list").selectAll("*").remove();
     generateTreeLayout(drawData);
     layout(dag);
     // let highlight = false;
@@ -721,6 +729,10 @@ function updateTreeGraph(drawData,currentNodeId)
     // keepTopLayersNodesUp();
 
     // Select nodes
+    let removedNodes = nodes.filter(function(node){
+        return shownNodesMap[node.data.id] === 0;
+    })
+    removedNodes.remove();
     nodes = graph
         .select(".nodes-list")
         .selectAll(".node")
@@ -730,8 +742,27 @@ function updateTreeGraph(drawData,currentNodeId)
         .transition()
         .duration(1000)
         .ease(d3.easeLinear)
-        .attr("transform", function(node){
-           return `translate(${node.x}, ${node.y})`
+        // .attr("transform", function(node){
+        //     zoomTransform.x+=1000;
+        //     zoomTransform.y+=1000;
+        //     graph.attr('transform', zoomTransform);
+        //     return `translate(${node.x}, ${node.y})`
+        // })
+        .attrTween("transform", function (node) {
+            // Your translation function
+            let translateFunction = d3.interpolateString(this.getAttribute("transform"), `translate(${node.x}, ${node.y})`);
+            // Return the tween function
+            return function (t) {
+                // Dynamically adjust the viewBox during the transition
+                if(node.data.id === currentNodeId)
+                {
+                    zoomTransform.x = currentZoomX - (node.x - currentX)*t*zoomTransform.k;
+                    zoomTransform.y = currentZoomY - (node.y - currentY)*t*zoomTransform.k;
+                    graph.attr('transform', zoomTransform);
+                }
+                // Return the interpolated transform value
+                return translateFunction(t);
+            };
         })
         .on("end", function(){
             completeTransitions++;
@@ -739,10 +770,7 @@ function updateTreeGraph(drawData,currentNodeId)
             {
                 drawTree(drawData,"update");
                 graph.attr('transform', zoomTransform);
-                // if(highlight)
-                // {
-                    updateGraphPlot(currentNodeId);
-                // }
+                updateGraphPlot(currentNodeId);
             }
         });
 }
@@ -840,11 +868,4 @@ function collapseTree()
     rootsNodesIds = [];
     rootsNodesCoord = {};
     initGraph();
-    // if(zoomTransform !== undefined)
-    // {
-    //     zoomTransform.k = 3;
-    //     zoomTransform.x = 0;
-    //     zoomTransform.y = 0;
-    //     graph.attr('transform', zoomTransform);
-    // }
 }
