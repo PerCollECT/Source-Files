@@ -313,7 +313,7 @@ body {
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:60px;
+  top:80px;
   right:20px;
 }
 
