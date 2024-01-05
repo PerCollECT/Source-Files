@@ -147,7 +147,7 @@ function addLegend() {
   if ($("#tree_view").innerHTML == '') return;
 
   let colors = ["#f4f4f9", "#ace3b5", "#b4acd2", "#000000"];
-  let treeButtonsColors = ["#8B0000FF", "#006400FF"];
+  let treeButtonsColors = ["#006400FF","#8B0000FF"];
   let names = ["Effects", "System independent cause", "Design parameter", "Expand node parents"]
   let treeButtonsNames = ["Expand node children", "Collapse node children"];
   let text = "";
@@ -155,6 +155,8 @@ function addLegend() {
     if(i === 3)
     {
       text = "+"
+      $("<br>")
+          .appendTo($("#legend"));
     }
     $("<div></div>")
       .addClass("circle")
