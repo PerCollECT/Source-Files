@@ -6,6 +6,7 @@ let dag;
 let nodes;
 let graph;
 let width = 600, height = 400;
+let viewboxWidth = 11000, viewboxHeight = 10000;
 let maxTextLength = 200;
 let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
@@ -260,9 +261,9 @@ function updateTree(currentNodeId,state){
     }
     updateShownNodeMap(treeData)
     highlightSelectedNode(currentNodeId);
-    updateTreeGraph(currentTree,currentNodeId);
-    graph
-        .attr('transform', zoomTransform);
+    updateTreeGraph(currentTree,currentNodeId, state);
+    // graph
+    //     .attr('transform', zoomTransform);
 }
 
 /**
@@ -288,7 +289,7 @@ function drawTree(drawData,state)
         svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
     }
     else{
-        svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
+        svgSelection.attr("viewBox", [0, 0, viewboxWidth, viewboxHeight].join(" "));
     }
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
@@ -611,7 +612,7 @@ function updateShownNodeMap(data)
  * It links the node to its existing parents and expand its children
  * @param {Object} node node
  */
-function expandNodeTree(node)
+function expandSearchedNodeTree(node)
 {
     let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
     if(shownNodesMap[node.id] !==1)
@@ -644,7 +645,7 @@ function expandNodeTree(node)
         }
     })
     linkNewNodes(children,data);
-    updateTree(node.id,"node tree")
+    updateTree(node.id,"expand searched node tree")
 }
 
 
@@ -708,16 +709,21 @@ function linkNewNodes(nodes,data)
  * update tree graph with nodes transition effect
  * @param {Array} drawData tree data
  * @param {String} currentNodeId tree data
+ * @param {String} state node state
  */
-function updateTreeGraph(drawData,currentNodeId)
+function updateTreeGraph(drawData,currentNodeId,state)
 {
     let currentNode = nodes.filter(function(node){
         return node.data.id === currentNodeId;
     })
-    let currentX = currentNode._groups[0][0].__data__.x
-    let currentY = currentNode._groups[0][0].__data__.y
+    let currentX = 0,currentY = 0;
     let currentZoomX = zoomTransform.x;
     let currentZoomY = zoomTransform.y;
+    if(currentNode._groups[0].length !== 0 ){
+        currentX = currentNode._groups[0][0].__data__.x
+        currentY = currentNode._groups[0][0].__data__.y
+    }
+
     graph.select(".paths-list").selectAll("*").remove();
     generateTreeLayout(drawData);
     layout(dag);
@@ -733,6 +739,20 @@ function updateTreeGraph(drawData,currentNodeId)
         .select(".nodes-list")
         .selectAll(".node")
         .data(dag.descendants(), d => d.data.id)
+
+    let searchedNodeX = 0,searchedNodeY = 0;
+    if (state === "expand searched node tree")
+    {
+        let new_nodes = dag.descendants();
+        for(let i = 0; i < new_nodes.length; ++i)
+        {
+            if(new_nodes[i].data.id === currentNodeId)
+            {
+                searchedNodeX = new_nodes[i].x;
+                searchedNodeY = new_nodes[i].y;
+            }
+        }
+    }
     let completeTransitions = 0;
     nodes
         .transition()
@@ -744,12 +764,17 @@ function updateTreeGraph(drawData,currentNodeId)
             // Return the tween function
             return function (t) {
                 // Dynamically adjust the viewBox during the transition
-                if(node.data.id === currentNodeId)
+                if(state === "expand searched node tree")
+                {
+                    zoomTransform.x = currentZoomX + (viewboxWidth/2 - currentZoomX - searchedNodeX*zoomTransform.k)*t;
+                    zoomTransform.y = currentZoomY + (viewboxHeight/2 - currentZoomY - searchedNodeY*zoomTransform.k)*t;
+                }
+                else if(node.data.id === currentNodeId)
                 {
                     zoomTransform.x = currentZoomX - (node.x - currentX)*t*zoomTransform.k;
                     zoomTransform.y = currentZoomY - (node.y - currentY)*t*zoomTransform.k;
-                    graph.attr('transform', zoomTransform);
                 }
+                graph.attr('transform', zoomTransform);
                 // Return the interpolated transform value
                 return translateFunction(t);
             };
