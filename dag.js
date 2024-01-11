@@ -6,6 +6,7 @@ let dag;
 let nodes;
 let graph;
 let width = 600, height = 400;
+let viewboxWidth = 11000, viewboxHeight = 10000;
 let maxTextLength = 200;
 let nodeWidth = maxTextLength + 20;
 let nodeHeight = 140;
@@ -288,7 +289,7 @@ function drawTree(drawData,state)
         svgSelection.attr("viewBox", [0, 0, width, (window.innerHeight)*sizeFactor].join(" "));
     }
     else{
-        svgSelection.attr("viewBox", [0, 0, 11000, 10000].join(" "));
+        svgSelection.attr("viewBox", [0, 0, viewboxWidth, viewboxHeight].join(" "));
     }
     svgSelection.call(zoom);
     graph = svgSelection.append("g");
@@ -714,12 +715,17 @@ function updateTreeGraph(drawData,currentNodeId)
     let currentNode = nodes.filter(function(node){
         return node.data.id === currentNodeId;
     })
-    let currentX,currentY,currentZoomX,currentZoomY;
+    let currentX = 0,currentY = 0;
+    let currentZoomX = zoomTransform.x;
+    let currentZoomY = zoomTransform.y;
+    let searchedNode = false;
     if(currentNode._groups[0].length !== 0 ){
         currentX = currentNode._groups[0][0].__data__.x
         currentY = currentNode._groups[0][0].__data__.y
-        currentZoomX = zoomTransform.x;
-        currentZoomY = zoomTransform.y;
+    }
+    else
+    {
+        searchedNode = true;
     }
 
     graph.select(".paths-list").selectAll("*").remove();
@@ -737,6 +743,20 @@ function updateTreeGraph(drawData,currentNodeId)
         .select(".nodes-list")
         .selectAll(".node")
         .data(dag.descendants(), d => d.data.id)
+
+    let searchedNodeX = 0,searchedNodeY = 0;
+    if (searchedNode)
+    {
+        let new_nodes = dag.descendants();
+        for(let i = 0; i < new_nodes.length; ++i)
+        {
+            if(new_nodes[i].data.id === currentNodeId)
+            {
+                searchedNodeX = new_nodes[i].x;
+                searchedNodeY = new_nodes[i].y;
+            }
+        }
+    }
     let completeTransitions = 0;
     nodes
         .transition()
@@ -748,12 +768,17 @@ function updateTreeGraph(drawData,currentNodeId)
             // Return the tween function
             return function (t) {
                 // Dynamically adjust the viewBox during the transition
-                if(node.data.id === currentNodeId)
+                if(searchedNode)
+                {
+                    zoomTransform.x = currentZoomX + (viewboxWidth/2 - currentZoomX - searchedNodeX*zoomTransform.k)*t;
+                    zoomTransform.y = currentZoomY + (viewboxHeight/2 - currentZoomY - searchedNodeY*zoomTransform.k)*t;
+                }
+                else if(node.data.id === currentNodeId)
                 {
                     zoomTransform.x = currentZoomX - (node.x - currentX)*t*zoomTransform.k;
                     zoomTransform.y = currentZoomY - (node.y - currentY)*t*zoomTransform.k;
-                    graph.attr('transform', zoomTransform);
                 }
+                graph.attr('transform', zoomTransform);
                 // Return the interpolated transform value
                 return translateFunction(t);
             };
