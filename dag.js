@@ -261,7 +261,7 @@ function updateTree(currentNodeId,state){
     }
     updateShownNodeMap(treeData)
     highlightSelectedNode(currentNodeId);
-    updateTreeGraph(currentTree,currentNodeId);
+    updateTreeGraph(currentTree,currentNodeId, state);
     // graph
     //     .attr('transform', zoomTransform);
 }
@@ -612,7 +612,7 @@ function updateShownNodeMap(data)
  * It links the node to its existing parents and expand its children
  * @param {Object} node node
  */
-function expandNodeTree(node)
+function expandSearchedNodeTree(node)
 {
     let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
     if(shownNodesMap[node.id] !==1)
@@ -645,7 +645,7 @@ function expandNodeTree(node)
         }
     })
     linkNewNodes(children,data);
-    updateTree(node.id,"node tree")
+    updateTree(node.id,"expand searched node tree")
 }
 
 
@@ -709,8 +709,9 @@ function linkNewNodes(nodes,data)
  * update tree graph with nodes transition effect
  * @param {Array} drawData tree data
  * @param {String} currentNodeId tree data
+ * @param {String} state node state
  */
-function updateTreeGraph(drawData,currentNodeId)
+function updateTreeGraph(drawData,currentNodeId,state)
 {
     let currentNode = nodes.filter(function(node){
         return node.data.id === currentNodeId;
@@ -718,14 +719,9 @@ function updateTreeGraph(drawData,currentNodeId)
     let currentX = 0,currentY = 0;
     let currentZoomX = zoomTransform.x;
     let currentZoomY = zoomTransform.y;
-    let searchedNode = false;
     if(currentNode._groups[0].length !== 0 ){
         currentX = currentNode._groups[0][0].__data__.x
         currentY = currentNode._groups[0][0].__data__.y
-    }
-    else
-    {
-        searchedNode = true;
     }
 
     graph.select(".paths-list").selectAll("*").remove();
@@ -745,7 +741,7 @@ function updateTreeGraph(drawData,currentNodeId)
         .data(dag.descendants(), d => d.data.id)
 
     let searchedNodeX = 0,searchedNodeY = 0;
-    if (searchedNode)
+    if (state === "expand searched node tree")
     {
         let new_nodes = dag.descendants();
         for(let i = 0; i < new_nodes.length; ++i)
@@ -768,7 +764,7 @@ function updateTreeGraph(drawData,currentNodeId)
             // Return the tween function
             return function (t) {
                 // Dynamically adjust the viewBox during the transition
-                if(searchedNode)
+                if(state === "expand searched node tree")
                 {
                     zoomTransform.x = currentZoomX + (viewboxWidth/2 - currentZoomX - searchedNodeX*zoomTransform.k)*t;
                     zoomTransform.y = currentZoomY + (viewboxHeight/2 - currentZoomY - searchedNodeY*zoomTransform.k)*t;

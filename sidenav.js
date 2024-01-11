@@ -107,7 +107,7 @@ function createDropDownContainer(linkArray) {
 function navLink(title) {
     let node = getNodeByTitle(title);
     $("#info_box").empty();
-    expandNodeTree(node);
+    expandSearchedNodeTree(node);
     addNodeInfos(node, "preview");
     updateGraphPlot(node.id);
 }
