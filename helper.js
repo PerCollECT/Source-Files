@@ -151,6 +151,14 @@ function addLegend() {
   let names = ["Effects", "System independent cause", "Design parameter", "Expand node parents"]
   let treeButtonsNames = ["Expand node children", "Collapse node children"];
   let text = "";
+  $("<div></div>")
+      .html("Legends")
+      .css("font-weight","bold")
+      .css("font-size","20px")
+      .css("line-height","10px")
+      .appendTo($("#legend"));
+  $("<br>")
+      .appendTo($("#legend"));
   for (let i = 0; i < colors.length; ++i) {
     if(i === 3)
     {
