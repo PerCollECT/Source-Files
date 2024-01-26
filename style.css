@@ -267,14 +267,15 @@ body {
   height: auto;
   padding-top: 20px;
   padding-bottom: 20px;
-  /*margin-top: 20px;*/
+  padding-left: 10px;
   margin-left: var(--legend-margin-lr);
-  /*margin-right: var(--legend-margin-lr);*/
   position:fixed;
-  top:0;
-  right:0;
+  top:4px;
+  right:20px;
   user-select: none;
   background-color: white;
+  border: 1px solid var(--main-color);
+
 }
 
 .legend .circle {
@@ -313,7 +314,7 @@ body {
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:80px;
+  top:150px;
   right:20px;
 }
 
