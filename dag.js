@@ -45,7 +45,7 @@ function initGraph() {
     let data = structuredClone(treeData); // A clone is made to avoid any modifications in the original data
     for(let i=0;i<data.length;i++)
     {
-        ///Expand the nodes with no parents and initialize shownNodesMap with the shown nodes in the tree
+        // Expand the nodes with no parents and initialize shownNodesMap with the shown nodes in the tree
         // and nodeChildrenStateMap with the state of the node children(expanded or collapsed)
         if(data[i]["parentIds"].length === 0)
         {
@@ -61,18 +61,17 @@ function initGraph() {
                 shownNodesMap[data[i]["id"]] = 0;
             }
         }
-        ///Get nodes with no children to draw them without children expand/collapse button
+        // Get nodes with no children to draw them without children expand/collapse button
         if(getNodeChildren(data[i]["id"],data).length === 0)
         {
             leavesNodesIds.push(data[i]["id"])
         }
     }
-    ///Remove hidden parents of the nodes in the currentTree
+    // Remove hidden parents of the nodes in the currentTree
     for (let i = 0; i < currentTree.length; i++)
     {
         if(shownNodesMap[currentTree[i]["id"]] === 1)
         {
-            // currentTree[i]["parentIds"] = removeHiddenParents(currentTree[i]["id"]);
             removeHiddenParents(currentTree[i]["parentIds"]);
         }
     }
@@ -124,7 +123,6 @@ function initGraph() {
     let node = getNodeByTitle(d.currentTarget.__data__.data.title);
     $("#info_box").empty();
     addNodeInfos(node, "preview");
-    // document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
     updateGraphPlot(currentNodeId);
  }
 
@@ -137,7 +135,6 @@ function initGraph() {
    let node = getNodeByTitle(d.currentTarget.__data__.data.title);
    $("#info_box").empty();
    addNodeInfos(node, "preview");
-    // document.getElementById("preview").scrollIntoView({ behavior: 'smooth' });
    updateGraphPlot(currentNodeId);
 }
 
@@ -178,7 +175,6 @@ function initGraph() {
                   .text(word);
           }
       }
-      // set new box height
   });
 }
 /**
@@ -239,7 +235,7 @@ function onNodeParentsToggle(d)
  * @param {String} state node to be expanded or collapsed
  */
 function updateTree(currentNodeId,state){
-    let data = structuredClone(treeData);// A clone is made to avoid any modifications in the original data
+    let data = structuredClone(treeData); // A clone is made to avoid any modifications in the original data
     if(state === "children expand")
     {
         nodeChildrenExpand(currentNodeId,data);
@@ -262,8 +258,6 @@ function updateTree(currentNodeId,state){
     updateShownNodeMap(treeData)
     highlightSelectedNode(currentNodeId);
     updateTreeGraph(currentTree,currentNodeId, state);
-    // graph
-    //     .attr('transform', zoomTransform);
 }
 
 /**
@@ -281,7 +275,6 @@ function drawTree(drawData,state)
     // --------------------------------
     // This code only handles rendering
     // --------------------------------
-    // keepTopLayersNodesUp();
     svgSelection = d3.select("svg");
     svgSelection.selectAll('*').remove();
     if(state === "expand tree")
@@ -372,7 +365,7 @@ function drawTree(drawData,state)
         .attr("x", nodeWidth - 20 - (5 / 2))
         .html("i");
 
-    ///Filter nodes with no parent to add parents expand/collapse button
+    // Filter nodes with no parent to add parents expand/collapse button
     let rootsNodes = nodes.filter(function(node){
         return !nodeParentsStateMap[node.data.id];
     })
@@ -391,7 +384,7 @@ function drawTree(drawData,state)
         .attr("y",8.5)
         .html("+")
 
-    ///Filter nodes with no children to add expand/collapse button
+    // Filter nodes with no children to add expand/collapse button
     let leavesNodes = nodes.filter(function(node){
         return !leavesNodesIds.includes(node.data.id);
     })
@@ -493,7 +486,7 @@ function nodeChildrenExpand(currentNodeId,data)
     {
         if(data[i]["parentIds"].includes(currentNodeId))
         {
-            ///If the child is already shown, add the parent to it in currentTree
+            // If the child is already shown, add the parent to it in currentTree
             if(shownNodesMap[data[i]["id"]] === 1)
             {
                 for(let j = 0;j<currentTree.length;j++)
@@ -515,7 +508,7 @@ function nodeChildrenExpand(currentNodeId,data)
             nodeChildren.push(data[i]["id"]);
         }
     }
-    ///Link new nodes (clicked node children) to their existing children
+    // Link new nodes (clicked node children) to their existing children
     linkNewNodes(nodeChildren,data)
 }
 /**
@@ -621,7 +614,7 @@ function expandSearchedNodeTree(node)
         currentTree.push(node);
     }
     let nodeParentsQueue = node.parentIds.slice(0);
-    //show node parents till the top layer
+    // show node parents till the top layer
     while(nodeParentsQueue.length > 0)
     {
         let parentId = nodeParentsQueue.shift();
@@ -635,7 +628,7 @@ function expandSearchedNodeTree(node)
             nodeParentsQueue.push(elem);
         })
     }
-    //show node children
+    // show node children
     let children = getNodeChildren(node.id,data);
     children.forEach(function(child){
         if(shownNodesMap[child.id] !==1)
@@ -727,7 +720,6 @@ function updateTreeGraph(drawData,currentNodeId,state)
     graph.select(".paths-list").selectAll("*").remove();
     generateTreeLayout(drawData);
     layout(dag);
-    // keepTopLayersNodesUp();
 
     // Remove collapsed nodes before starting the animation
     let collapsedNodes = nodes.filter(function(node){
@@ -822,7 +814,7 @@ function keepTopLayersNodesUp()
 {
     let rootsNodesY = 100000;
     let rootsNodesX = [];
-    //get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
+    // get roots nodes y-coordinate(the minimum to make it constant for all of them) and x-coordinates
     dag.descendants().forEach(function(node){
         if(node.y<rootsNodesY)
         {
@@ -836,7 +828,7 @@ function keepTopLayersNodesUp()
     rootsNodesX.sort(function(a, b){return a - b});
     let xStep = (rootsNodesX[rootsNodesIds.length - 1] - rootsNodesX[0])/rootsNodesIds.length;//horizontal space between roots nodes
     let i = 0;
-    //Set the new coordinates to the roots nodes
+    // Set the new coordinates to the roots nodes
     dag.descendants().forEach(function(node){
         if(rootsNodesIds.includes(node.data.id))
         {
@@ -846,7 +838,7 @@ function keepTopLayersNodesUp()
             i+=1;
         }
     })
-    //Set the new coordinates to the roots nodes links
+    // Set the new coordinates to the roots nodes links
     dag.links().forEach(function(node){
         if(rootsNodesIds.includes(node.source.data.id))
         {

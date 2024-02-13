@@ -4,9 +4,6 @@
 if (!HTMLCollection.prototype.forEach) {
   HTMLCollection.prototype.forEach = Array.prototype.forEach;
 }
-/*if (!Object.prototype.forEach) {
-  Object.prototype.forEach = Array.prototype.forEach;
-}*/
 if (!HTMLCollection.prototype.indexOf) {
   HTMLCollection.prototype.indexOf = Array.prototype.indexOf;
 }
@@ -73,10 +70,8 @@ function addNodeInfos(node, id) {
         value.push(["Decomposition Block", node.decomBlock.replaceAll("\\n", "<br><br>")]);
         break;
       case "number of parent nodes":
-        //value.push([a, getNumberOfParents(node)]);
         break;
       case "number of child nodes":
-        //value.push([a, getNumberOfChildren(node)]);
         break;
       case "references":
         value = prepareReferencesInfo(node.references);
@@ -212,15 +207,13 @@ function jumpToSearch() {
  * @returns 
  */
 function addAutoComplete(input) {
-  // TODO switch to jQuery
-
   let tree = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
   if (!tree) return;
 
   // collect all nodes names in tree
   let arr = [];
   let tagsArr = [];
-  let tagsTitlesMap = {};//map that links each tag to its associated titles.
+  let tagsTitlesMap = {}; // map that links each tag to its associated titles.
   tree.forEach(function (n) {
     if (!arr.includes(n.title)) {
       arr.push(n.title);
@@ -250,7 +243,7 @@ function addAutoComplete(input) {
   let currentFocus;
   input.addEventListener("input", function () {
     let val = this.value;
-    let titlesMap = {};//check if the title already in the search results to avoid duplicates.
+    let titlesMap = {}; // check if the title already in the search results to avoid duplicates.
 
     // close already open lists
     closeAllLists();
@@ -308,8 +301,7 @@ function addAutoComplete(input) {
 
   });
 
-  function checkSearchBarValue(data,searchVal)
-  {
+  function checkSearchBarValue(data,searchVal) {
     let includes = false;
     if (data.toLowerCase().includes(searchVal.toLowerCase())) {
       includes = true;
@@ -382,7 +374,6 @@ function prepareReferencesInfo(referenceString){
   let preparedRefString = referenceString
   .replace("[", "")
   .replaceAll("]", "")
-  //.replaceAll(/[\s]/g, "")
   .split("[")
   .filter(function (e) { return e != ""; });
   

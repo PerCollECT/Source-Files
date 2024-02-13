@@ -358,8 +358,6 @@ body {
 }
 
 .content #info_box {
-  /*margin-top: 20px;*/
-  /*display: inline-block;*/
   overflow-y: scroll;
   height: 96%;
 }
