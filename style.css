@@ -36,7 +36,8 @@ body {
   padding-top: 20px;
   background-color: var(--sidenav-bg);
   box-shadow: 1px 0 1px 0 rgb(214, 211, 211);
-  z-index: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidenav #head a {
@@ -128,7 +129,7 @@ body {
 /* sidenav links  */
 #side_nav_links {
   overflow-y: auto;
-  height: 100%;
+  height: 80%;
   width: var(--sidenav-width);
 }
 
@@ -466,6 +467,17 @@ body {
 }
 
 .tree_links_container{
-  position: fixed;
+  position: relative;
   bottom: 0;
+}
+
+.tree_links_container a{
+  width: 100%;
+  padding: 8px 8px 6px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--main-color);
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
 }
