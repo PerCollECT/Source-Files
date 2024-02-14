@@ -64,9 +64,9 @@ function addSideNavLinks() {
     });
 
     // after last link, add some space
-    $("<div></div>")
-        .outerHeight($("#side_nav_links").outerHeight() * 0.35)
-        .appendTo($("#side_nav_links"));
+    // $("<div></div>")
+    //     .outerHeight($("#side_nav_links").outerHeight() * 0.35)
+    //     .appendTo($("#side_nav_links"));
 }
 
 /**
@@ -129,9 +129,8 @@ function addTreesLinks()
     const treesLinksContainer = document.createElement('div');
     treesLinksContainer.classList.add('tree_links_container');
 
-    const sideNav = document.getElementById('side_nav_links');
+    const sideNav = document.getElementById('side_nav');
     const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
-    const content = document.getElementsByClassName('content');
     let repos = ["LidarLimbs", "RadarRami", "UltrasonicUnderwood", "CameraCopse"];
     repos.forEach(function(repo){
         if(repo !== currentTreeTitle) {
