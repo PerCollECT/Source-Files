@@ -31,5 +31,8 @@ if (isIE()) {
 
   // manage page content
   addLegend();
+  addExpandAndCollapseTreeButtons();
+  addInfoBoxResizeBar();
   addSideNavLinks();
   addAutoComplete(document.getElementById("search_input"));
+  addTreesLinks()

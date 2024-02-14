@@ -4,9 +4,6 @@
 if (!HTMLCollection.prototype.forEach) {
   HTMLCollection.prototype.forEach = Array.prototype.forEach;
 }
-/*if (!Object.prototype.forEach) {
-  Object.prototype.forEach = Array.prototype.forEach;
-}*/
 if (!HTMLCollection.prototype.indexOf) {
   HTMLCollection.prototype.indexOf = Array.prototype.indexOf;
 }
@@ -57,9 +54,8 @@ function addNodeInfos(node, id) {
     "id",
     "decomBlock",
     "description",
-    "number of parent nodes",
-    "number of child nodes",
-    "references"];
+    "references",
+    "tags"];
 
   attributesToShow.forEach(function (a) {
     let value = [];
@@ -70,12 +66,6 @@ function addNodeInfos(node, id) {
         break;
       case "decomBlock":
         value.push(["Decomposition Block", node.decomBlock.replaceAll("\\n", "<br><br>")]);
-        break;
-      case "number of parent nodes":
-        //value.push([a, getNumberOfParents(node)]);
-        break;
-      case "number of child nodes":
-        //value.push([a, getNumberOfChildren(node)]);
         break;
       case "references":
         value = prepareReferencesInfo(node.references);
@@ -93,7 +83,25 @@ function addNodeInfos(node, id) {
             e.splice(2, 2);
           }
         });
-        break;      
+        break;
+      case "tags":
+        try{
+          let tagsLine = ["Tags"];
+          let tags = "";
+          node.tags.forEach(function(tag,idx,array){
+            tags += tag;
+            if(idx !== array.length - 1)
+            {
+              tags += ", ";
+            }
+          })
+          tagsLine.push(tags);
+          value.push(tagsLine);
+        }
+        catch{
+          console.log("tags property doesn't exist")
+        }
+        break;
       default:
         value.push([a, node[a].replaceAll("\\n", "<br><br>")]);
     }
@@ -127,17 +135,54 @@ function addNodeInfos(node, id) {
 function addLegend() {
   if ($("#tree_view").innerHTML == '') return;
 
-  let colors = ["#f4f4f9", "#ace3b5", "#b4acd2"];
-  let names = ["Effects", "System independent cause", "Design parameter"]
+  let colors = ["#f4f4f9", "#ace3b5", "#b4acd2", "#000000"];
+  let treeButtonsColors = ["#006400FF","#8B0000FF"];
+  let names = ["Effects", "System independent cause", "Design parameter", "Expand node parents"]
+  let treeButtonsNames = ["Expand node children", "Collapse node children"];
+  let text = "";
+  $("<div></div>")
+      .html("Legend")
+      .css("font-weight","bold")
+      .css("font-size","18px")
+      .css("line-height","10px")
+      .appendTo($("#legend"));
+  $("<br>")
+      .appendTo($("#legend"));
   for (let i = 0; i < colors.length; ++i) {
+    if(i === 3)
+    {
+      text = "+"
+      $("<br>")
+          .appendTo($("#legend"));
+    }
     $("<div></div>")
       .addClass("circle")
       .css("background", colors[i])
+      .html(text)
       .appendTo($("#legend"));
     $("<div></div>")
       .addClass("circle-text")
       .html(names[i])
       .appendTo($("#legend"));
+  }
+  for (let i = 0; i < treeButtonsNames.length; ++i) {
+    if(i===0)
+    {
+      text = "+";
+    }
+    else
+    {
+      text = "-";
+    }
+    $("<div></div>")
+        .addClass("rectangle")
+        .css("background", treeButtonsColors[i])
+        .html(text)
+        .appendTo($("#legend"));
+    $("<div></div>")
+        .addClass("circle-text")
+        .html(treeButtonsNames[i])
+        .appendTo($("#legend"));
   }
 }
 
@@ -156,22 +201,43 @@ function jumpToSearch() {
  * @returns 
  */
 function addAutoComplete(input) {
-  // TODO switch to jQuery
-
   let tree = JSON.parse(getDataFromSessionStorage(repoName + "Tree"));
   if (!tree) return;
 
   // collect all nodes names in tree
   let arr = [];
+  let tagsArr = [];
+  let tagsTitlesMap = {}; // map that links each tag to its associated titles.
   tree.forEach(function (n) {
     if (!arr.includes(n.title)) {
       arr.push(n.title);
     }
+    try{
+      n.tags.forEach(function(tag){
+        if(tagsTitlesMap.hasOwnProperty(tag))
+        {
+          tagsTitlesMap[tag].push(n.title);
+        }
+        else
+        {
+          tagsTitlesMap[tag] = [];
+          tagsTitlesMap[tag].push(n.title);
+        }
+        if (!tagsArr.includes(tag)) {
+          tagsArr.push(tag);
+        }
+      })
+    }
+    catch{
+      console.log("tags property doesn't exist")
+    }
+
   })
 
   let currentFocus;
   input.addEventListener("input", function () {
     let val = this.value;
+    let titlesMap = {}; // check if the title already in the search results to avoid duplicates.
 
     // close already open lists
     closeAllLists();
@@ -188,18 +254,10 @@ function addAutoComplete(input) {
     // append auto complete items
     this.parentNode.appendChild(divContainer);
     arr.forEach(function (e) {
-
-      let includes = false;
-      let parts = e.split(/[ ,]+/);
-
-      parts.forEach(function (p) {
-        if (p.toLowerCase().includes(val.toLowerCase())) {
-          includes = true;
-          return;
-        }
-      });
-
+      titlesMap[e] = 0;
+      let includes = checkSearchBarValue(e,val);
       if (includes) {
+        titlesMap[e] = 1;
         let divEntry = document.createElement("div");
         let startIndex = e.toLowerCase().indexOf(val.toLowerCase());
         divEntry.innerHTML = e.substr(0, startIndex);
@@ -215,7 +273,35 @@ function addAutoComplete(input) {
       }
     });
 
+    tagsArr.forEach(function (e) {
+      let includes = checkSearchBarValue(e,val);
+      if (includes) {
+        tagsTitlesMap[e].forEach(function(title){
+          if(titlesMap[title] === 0){
+            titlesMap[title] = 1;
+            let divEntry = document.createElement("div");
+            divEntry.innerHTML = title;
+            divEntry.innerHTML += `<input type='hidden' value='${title}'>`;
+            divEntry.addEventListener("click", function () {
+              input.value = this.getElementsByTagName("input")[0].value;
+              closeAllLists();
+              jumpToSearch();
+            });
+            divContainer.appendChild(divEntry);
+          }
+        })
+      }
+    });
+
   });
+
+  function checkSearchBarValue(data,searchVal) {
+    let includes = false;
+    if (data.toLowerCase().includes(searchVal.toLowerCase())) {
+      includes = true;
+    }
+    return includes;
+  }
 
   // key pressed handler
   input.addEventListener("keydown", function (e) {
@@ -282,7 +368,6 @@ function prepareReferencesInfo(referenceString){
   let preparedRefString = referenceString
   .replace("[", "")
   .replaceAll("]", "")
-  //.replaceAll(/[\s]/g, "")
   .split("[")
   .filter(function (e) { return e != ""; });
   
@@ -293,4 +378,104 @@ function prepareReferencesInfo(referenceString){
 
   return value;
 }
+/**
+ * Get node children
+ * @param {String} nodeId node ID
+ * @param {Array} data tree data
+ * @returns
+ */
+function getNodeChildren(nodeId,data)
+{
+  let children = [];
+  data.forEach(function (elem) {
+    if (elem.parentIds.includes(nodeId)) {
+      children.push(elem)
+    }
+  });
+  return children;
+}
+/**
+ * Get node parents
+ * @param {String} nodeId node ID
+ * @param {Array} data tree data
+ * @returns
+ */
+function getNodeParents(nodeId,data)
+{
+  let parents = []
+  data.forEach(function (elem) {
+    if (elem.id === nodeId) {
+      parents =  elem.parentIds;
+      return;
+    }
+  });
+  return parents;
+}
 
+function addInfoBoxResizeBar()
+{
+  const infoBoxContainer = document.createElement('div');
+  infoBoxContainer.classList.add('info_box_container');
+
+  const resizeBar = document.createElement('div');
+  resizeBar.classList.add('resize_bar');
+
+  const infoBox = document.getElementById('info_box');
+  infoBoxContainer.appendChild(resizeBar);
+  infoBoxContainer.appendChild(infoBox);
+
+  const content = document.getElementsByClassName('content');
+  const treeTableContainer = document.getElementById('tree_table_container');
+  content[0].insertBefore(infoBoxContainer,treeTableContainer);
+
+// on mouse down (drag start)
+  resizeBar.onmousedown = function dragMouseDown(e) {
+    // get position of mouse
+    let dragY = e.clientY;
+    // register a mouse move listener if mouse is down
+    document.onmousemove = function onMouseMove(e) {
+      // e.clientY will be the position of the mouse as it has moved a bit now
+      // offsetHeight is the height of the infoBox
+      if(infoBoxContainer.offsetHeight - (e.clientY - dragY) >= 10 && e.clientY > 0)
+      {
+        infoBoxContainer.style.height = infoBoxContainer.offsetHeight - (e.clientY - dragY) + "px";
+        // update variable - till this pos, mouse movement has been handled
+        dragY = e.clientY;
+      }
+    }
+    // remove mouse-move listener on mouse-up (drag is finished now)
+    document.onmouseup = () => document.onmousemove = document.onmouseup = null;
+  }
+}
+
+function addExpandAndCollapseTreeButtons()
+{
+
+  const buttonsContainer = document.createElement('div');
+  buttonsContainer.classList.add('tree_buttons_container');
+
+  const expandButton = document.createElement('div');
+  expandButton.classList.add('tree_btn');
+  expandButton.id = "expand_tree_btn";
+  let expandText = document.createTextNode('Expand Tree');
+  expandButton.appendChild(expandText);
+  expandButton.addEventListener('click',function(){
+    expandTree();
+  });
+
+  const collapseButton = document.createElement('div');
+  collapseButton.classList.add('tree_btn');
+  collapseButton.id = "collapse_tree_btn";
+  let collapseText = document.createTextNode('Collapse Tree');
+  collapseButton.appendChild(collapseText);
+  collapseButton.addEventListener('click',function(){
+    collapseTree();
+  });
+  buttonsContainer.appendChild(expandButton);
+  buttonsContainer.appendChild(collapseButton);
+
+  const content = document.getElementsByClassName('content');
+  const infoBox = document.getElementById('info_box');
+
+  content[0].insertBefore(buttonsContainer,infoBox);
+}

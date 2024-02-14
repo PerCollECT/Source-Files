@@ -38,6 +38,14 @@
         "description": "The unique identifier of the node",
         "type": "string",
         "enum": ["effect", "designParameter", "systemIndependent"]
+      },
+      "tags": {
+        "description": "Node tags for search",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true
       }
     },
     "required": [ "id", "parentIds", "title",  "decomBlock", "description", "references", "nodeType"]

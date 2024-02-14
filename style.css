@@ -16,6 +16,7 @@
 
 body {
   overflow-x: scroll;
+  overflow-y: hidden ;
   background-color: var(--main-bg);
   font-family: "Lato", sans-serif;
 }
@@ -169,8 +170,11 @@ body {
 
 /* content  */
 .content {
-  height: auto;
+  height: 100vh;
   margin-left: var(--sidenav-width);
+  display: flex;
+  flex-direction: column;
+
 }
 
 .content #load_info {
@@ -202,6 +206,7 @@ body {
 .node {
   cursor: pointer;
   text-anchor: start;
+  user-select: none;
 }
 
 .node rect {
@@ -233,30 +238,52 @@ body {
 }
 
 .node .iText {
-  font-size: 18px;
+  font-size: 25px;
   fill: var(--main-bg);
   pointer-events: none;
   font-family: Georgia, 'Times New Roman', Times, serif;
   font-weight: bolder;
 }
 
+.node-expand-button{
+  border: none;
+  background-color: darkgreen;
+  width:25px;
+  height:20px;
+  vertical-align: middle;
+}
+
+.node-collapse-button{
+  border: none;
+  background-color: darkred;
+  width:25px;
+  height:20px;
+  text-align: center;
+}
+
 /* legend  */
 .content .legend {
   width: auto;
   height: auto;
+  padding-top: 20px;
   padding-bottom: 20px;
-  margin-top: 20px;
+  padding-left: 10px;
   margin-left: var(--legend-margin-lr);
-  margin-right: var(--legend-margin-lr);
-  float: right;
+  position:fixed;
+  top:4px;
+  right:20px;
+  user-select: none;
+  background-color: white;
+  border: 1px solid var(--main-color);
+
 }
 
 .legend .circle {
   width: 16px;
   height: 16px;
   text-align: center;
-  font-size: 8px;
-  line-height:150px;
+  font-size: 16px;
+  line-height:13px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid var(--main-color);
@@ -273,12 +300,66 @@ body {
   float:left;
 }
 
+.legend .rectangle {
+  width: 25px;
+  height: 20px;
+  text-align: center;
+  font-size: 16px;
+  line-height:18px;
+  color: #fff;
+  border: 1px solid var(--main-color);
+  float:left;
+}
+
+/* expand/collapse tree  */
+.content .tree_buttons_container{
+  position:fixed;
+  top:150px;
+  right:20px;
+}
+
+.content #expand_tree_btn{
+  background-color: green;
+}
+
+.content #collapse_tree_btn{
+  background-color: firebrick;
+}
+
+.content .tree_btn{
+  width: 100px;
+  height: 40px;
+  margin-bottom: 10px;
+  text-align: center;
+  line-height: 35px;
+  font-size: 14px;
+  font-weight:bold;
+  color: #fff;
+  border-radius: 10px;
+  border:2px solid var(--main-color);
+  cursor: pointer;
+}
+
 /* infobox  */
+.content .info_box_container {
+  resize: vertical;
+  height: 26%;
+  bottom:0;
+  position:fixed;
+  width: calc(100% - var(--sidenav-width));
+  background-color: white;
+}
+
+.content .resize_bar{
+  background-color: lightgray;
+  height:10px;
+  cursor: row-resize;
+  border-radius: 50px;
+}
+
 .content #info_box {
-  width: 100%;
-  height: auto;
-  margin-top: 20px;
-  display: inline-block;
+  overflow-y: scroll;
+  height: 96%;
 }
 
 .content #info_box .info {
@@ -297,6 +378,7 @@ body {
   color: var(--main-color-sec);
   display: block;
   font-weight: bold;
+  user-select: none;
 }
 
 .content #info_box .info a {
@@ -313,6 +395,7 @@ body {
 
 .content #info_box .info #info_key {
   font-weight: bold;
+  display: inline;
 }
 
 /* tree table  */
@@ -380,4 +463,9 @@ body {
 
 .content #tree_table .gs-pagination {
   padding-bottom: 50px;
+}
+
+.tree_links_container{
+  position: fixed;
+  bottom: 0;
 }
