@@ -54,8 +54,6 @@ function addNodeInfos(node, id) {
     "id",
     "decomBlock",
     "description",
-    "number of parent nodes",
-    "number of child nodes",
     "references",
     "tags"];
 
@@ -68,10 +66,6 @@ function addNodeInfos(node, id) {
         break;
       case "decomBlock":
         value.push(["Decomposition Block", node.decomBlock.replaceAll("\\n", "<br><br>")]);
-        break;
-      case "number of parent nodes":
-        break;
-      case "number of child nodes":
         break;
       case "references":
         value = prepareReferencesInfo(node.references);
