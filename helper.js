@@ -140,6 +140,8 @@ function addLegend() {
   let names = ["Effects", "System independent cause", "Design parameter", "Expand node parents"]
   let treeButtonsNames = ["Expand node children", "Collapse node children"];
   let text = "";
+
+  // Legend title
   $("<div></div>")
       .html("Legend")
       .css("font-weight","bold")
@@ -148,6 +150,7 @@ function addLegend() {
       .appendTo($("#legend"));
   $("<br>")
       .appendTo($("#legend"));
+  // Legend items
   for (let i = 0; i < colors.length; ++i) {
     if(i === 3)
     {
@@ -165,6 +168,7 @@ function addLegend() {
       .html(names[i])
       .appendTo($("#legend"));
   }
+  // Tree buttons
   for (let i = 0; i < treeButtonsNames.length; ++i) {
     if(i===0)
     {
@@ -182,6 +186,29 @@ function addLegend() {
     $("<div></div>")
         .addClass("circle-text")
         .html(treeButtonsNames[i])
+        .appendTo($("#legend"));
+  }
+  // FMCW specific node for Lidar tree
+  const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
+  if (currentTreeTitle == "LidarLimbs") {
+    $("<br>").appendTo($("#legend"));
+    $("<div></div>")
+        .addClass("rectangle")
+        .css("background", "lightblue")
+        .css("border", "1.5px solid ${colors[3]}")
+        .css("width", "42px")
+        .css("height", "16px")
+        .css("border-radius", "2px")
+        .html("FMCW")
+        .css("color", "black")
+        .css("font-weight", "bold")
+        .css("font-size","12px")
+        .css("align-items", "center")
+        .css("justify-content", "center")
+        .appendTo($("#legend"));
+    $("<div></div>")
+        .addClass("circle-text")
+        .html("FMCW specific node")
         .appendTo($("#legend"));
   }
 }

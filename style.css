@@ -265,8 +265,8 @@ body {
 .content .legend {
   width: auto;
   height: auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   padding-left: 10px;
   margin-left: var(--legend-margin-lr);
   position:fixed;
@@ -283,7 +283,7 @@ body {
   height: 16px;
   text-align: center;
   font-size: 16px;
-  line-height:13px;
+  line-height:14.5px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid var(--main-color);
@@ -301,11 +301,11 @@ body {
 }
 
 .legend .rectangle {
-  width: 25px;
-  height: 20px;
+  width: 20px;
+  height: 16px;
   text-align: center;
   font-size: 16px;
-  line-height:18px;
+  line-height:15px;
   color: #fff;
   border: 1px solid var(--main-color);
   float:left;
@@ -314,7 +314,7 @@ body {
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:150px;
+  top:160px;
   right:20px;
 }
 
@@ -335,7 +335,7 @@ body {
   font-size: 14px;
   font-weight:bold;
   color: #fff;
-  border-radius: 10px;
+  border-radius: 5px;
   border:2px solid var(--main-color);
   cursor: pointer;
 }
