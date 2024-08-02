@@ -129,7 +129,6 @@ body {
 /* sidenav links  */
 #side_nav_links {
   overflow-y: auto;
-  height: 80%;
   width: var(--sidenav-width);
 }
 
@@ -467,12 +466,13 @@ body {
 }
 
 .tree_links_container{
-  position: relative;
+  position: fixed;
   bottom: 0;
+  background-color: var(--sidenav-bg);
+  width: var(--sidenav-width);
 }
 
 .tree_links_container a{
-  width: 100%;
   padding: 8px 8px 6px 16px;
   text-align: left;
   font-size: 14px;
