@@ -132,7 +132,7 @@ function addTreesLinks()
     const sideNav = document.getElementById('side_nav_links');
     const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
     const content = document.getElementsByClassName('content');
-    let repos = ["LidarLimbs", "RadarRami", "UltrasonicUnderwood", "CameraCopse"];
+    let repos = ["LidarLimbs", "RadarRami", "Ultrasonic Underwood", "CameraCopse"];
     repos.forEach(function(repo){
         if(repo !== currentTreeTitle) {
             let treeElement = document.createElement('a');
