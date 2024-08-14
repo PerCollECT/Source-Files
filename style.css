@@ -130,6 +130,7 @@ body {
 #side_nav_links {
   overflow-y: auto;
   width: var(--sidenav-width);
+  height: calc(100vh - (/*top padding*/ 20px + /*height of head*/ 30px + /*height of search-container*/ 50px + /*height of infoHead*/ 30px + /*height of tree_links_container*/ 60px + /*offset height*/125px));
 }
 
 #side_nav_links a {
