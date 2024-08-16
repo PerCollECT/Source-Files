@@ -141,9 +141,10 @@ function addLegend() {
   let treeButtonsNames = ["Expand node children", "Collapse node children"];
   let text = "";
   $("<div></div>")
+      .addClass("legend-title")
       .html("Legend")
       .css("font-weight","bold")
-      .css("font-size","18px")
+      // .css("font-size","18px")
       .css("line-height","10px")
       .appendTo($("#legend"));
   $("<br>")

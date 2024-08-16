@@ -283,7 +283,7 @@ body {
   height: 16px;
   text-align: center;
   font-size: 16px;
-  line-height:13px;
+  line-height:16px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid var(--main-color);
@@ -309,6 +309,10 @@ body {
   color: #fff;
   border: 1px solid var(--main-color);
   float:left;
+}
+
+.legend .legend-title{
+  font-size: 18px;
 }
 
 /* expand/collapse tree  */
@@ -468,4 +472,91 @@ body {
 .tree_links_container{
   position: fixed;
   bottom: 0;
+}
+
+
+@media (max-width: 1300px) {
+  .content .legend {
+    width: 350px;
+    right: 10px;
+    padding-left: 5px;
+  }
+  .legend .circle {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+    line-height:12px;
+  }
+  .legend .circle-text {
+    height: 12px;
+    margin-left: 3px;
+    margin-right: 8px;
+    font-size: 9px;
+    line-height: 15px;
+  }
+  .legend .rectangle {
+    width: 16px;
+    height: 14px;
+    font-size: 10px;
+    line-height: 12px;
+  }
+  .content .tree_btn{
+    width: 75px;
+    height: 30px;
+    margin-bottom: 7px;
+    line-height: 27px;
+    font-size: 10px;
+    border-radius: 7px;
+    border:1px solid var(--main-color);
+  }
+  .content .tree_buttons_container{
+    top:130px;
+    right:15px;
+  }
+}
+
+@media (max-width: 750px) {
+  .content .legend {
+    width: 280px;
+    right: 5px;
+    padding-left: 2px;
+  }
+  .legend .legend-title{
+    font-size: 14px;
+    margin-left: 2px;
+  }
+  .legend .circle {
+    width: 10px;
+    height: 10px;
+    font-size: 10px;
+    line-height:10px;
+  }
+  .legend .circle-text {
+    height: 8px;
+    margin-left: 2px;
+    margin-right: 5px;
+    font-size: 7px;
+    line-height: 12px;
+  }
+  .legend .rectangle {
+    width: 12px;
+    height: 10px;
+    font-size: 7px;
+    line-height: 10px;
+  }
+  .legend .legend-title{
+    font-size: 14px;
+  }
+  .content .tree_btn{
+    width: 50px;
+    height: 20px;
+    margin-bottom: 5px;
+    line-height: 18px;
+    font-size: 6px;
+    border-radius: 5px;
+  }
+  .content .tree_buttons_container{
+    top:120px;
+    right:10px;
+  }
 }
