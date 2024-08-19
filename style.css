@@ -156,6 +156,11 @@ body {
   float: right;
 }
 
+#side_nav_links .fa-caret-up {
+  padding-right: 8px;
+  float: right;
+}
+
 #side_nav_links .dropdown-container {
   padding-left: 8px;
   font-size: 10px;

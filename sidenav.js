@@ -41,15 +41,20 @@ function addSideNavLinks() {
 
             this.classList.toggle("active");
             var dropdownContent = this.nextElementSibling;
+            var caretIcon = this.querySelector("i"); // Get the caret icon element
 
             if (dropdownContent.style.display === "block") {
                 dropdownContent.style.display = "none";
                 let index = localALinks.indexOf(this.innerText)
                 localALinks.splice(index, 1);
+                caretIcon.classList.remove("fa-caret-up"); // Remove the up arrow class
+                caretIcon.classList.add("fa-caret-down"); // Add the down arrow class
 
             } else {
                 dropdownContent.style.display = "block";
                 localALinks.push(this.innerText);
+                caretIcon.classList.remove("fa-caret-down"); // Remove the down arrow class
+                caretIcon.classList.add("fa-caret-up"); // Add the up arrow class
             }
             keepDataInSessionStorage(repoName + "ActiveLinks", JSON.stringify(localALinks));
         });
