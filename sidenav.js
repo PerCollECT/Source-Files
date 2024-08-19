@@ -134,7 +134,12 @@ function addTreesLinks()
     const treesLinksContainer = document.createElement('div');
     treesLinksContainer.classList.add('tree_links_container');
 
+    const horizontalLine = document.createElement('hr');
+    horizontalLine.classList.add('h_line');
+
     const sideNav = document.getElementById('side_nav');
+    sideNav.appendChild(horizontalLine)
+
     let repos = ["LidarLimbs", "RadarRami", "UltrasonicUnderwood", "CameraCopse"];
     repos.forEach(function(repo){
         if(repo !== repoName) {
