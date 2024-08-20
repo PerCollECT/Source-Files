@@ -330,6 +330,10 @@ body {
   font-size: 18px;
 }
 
+.legend .legend-separator{
+  height: 25px;
+}
+
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
@@ -507,6 +511,8 @@ body {
     width: 350px;
     right: 10px;
     padding-left: 5px;
+    padding-top: 15px;
+    padding-bottom: 15px;
   }
   .legend .circle {
     width: 12px;
@@ -540,6 +546,9 @@ body {
     top:130px;
     right:15px;
   }
+  .legend .legend-separator{
+    height: 20px;
+  }
 }
 
 @media (max-width: 750px) {
@@ -547,6 +556,8 @@ body {
     width: 280px;
     right: 5px;
     padding-left: 2px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
   .legend .legend-title{
     font-size: 14px;
@@ -585,5 +596,8 @@ body {
   .content .tree_buttons_container{
     top:120px;
     right:10px;
+  }
+  .legend .legend-separator{
+    height: 15px;
   }
 }
