@@ -36,7 +36,8 @@ body {
   padding-top: 20px;
   background-color: var(--sidenav-bg);
   box-shadow: 1px 0 1px 0 rgb(214, 211, 211);
-  z-index: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidenav #head a {
@@ -125,11 +126,20 @@ body {
   background-color: var(--sidenav-l-active) !important; 
 }
 
+.sidenav .h_line {
+  height: 1px;
+  display: block;
+  background-color: var(--main-color);;
+  opacity: 0.3;
+  margin-top: 0;
+}
+
 /* sidenav links  */
 #side_nav_links {
   overflow-y: auto;
-  height: 100%;
   width: var(--sidenav-width);
+  height: calc(100vh - (/*top padding*/ 20px + /*height of head*/ 30px + /*height of search-container*/ 50px +
+    /*height of infoHead*/ 30px + /*height of tree_links_container*/ 60px + /*offset height*/125px + /*horizontal separator height*/3px));
 }
 
 #side_nav_links a {
@@ -151,6 +161,11 @@ body {
 }
 
 #side_nav_links .fa-caret-down {
+  padding-right: 8px;
+  float: right;
+}
+
+#side_nav_links .fa-caret-up {
   padding-right: 8px;
   float: right;
 }
@@ -472,6 +487,18 @@ body {
 .tree_links_container{
   position: fixed;
   bottom: 0;
+  background-color: var(--sidenav-bg);
+  width: var(--sidenav-width);
+}
+
+.tree_links_container a {
+  padding: 8px 8px 6px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: var(--main-color);
+  display: block;
+  cursor: pointer;
+  text-decoration: none;
 }
 
 
