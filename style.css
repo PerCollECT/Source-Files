@@ -280,13 +280,13 @@ body {
 .content .legend {
   width: auto;
   height: auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   padding-left: 10px;
   margin-left: var(--legend-margin-lr);
   position:fixed;
   top:4px;
-  right:20px;
+  right:5px;
   user-select: none;
   background-color: white;
   border: 1px solid var(--main-color);
@@ -509,7 +509,6 @@ body {
 @media (max-width: 1300px) {
   .content .legend {
     width: 350px;
-    right: 5px;
     padding-left: 5px;
     padding-top: 7px;
     padding-bottom: 7px;
@@ -554,7 +553,6 @@ body {
 @media (max-width: 750px) {
   .content .legend {
     width: 265px;
-    right: 5px;
     padding-left: 3px;
     padding-top: 5px;
     padding-bottom: 5px;
