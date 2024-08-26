@@ -337,8 +337,8 @@ body {
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:150px;
-  right:20px;
+  top:125px;
+  right:5px;
 }
 
 .content #expand_tree_btn{
@@ -542,8 +542,7 @@ body {
     border:1px solid var(--main-color);
   }
   .content .tree_buttons_container{
-    top:95px;
-    right:5px;
+    top:100px;
   }
   .legend .legend-separator{
     height: 20px;
@@ -590,7 +589,6 @@ body {
   }
   .content .tree_buttons_container{
     top:75px;
-    right:5px;
   }
   .legend .legend-separator{
     height: 15px;
