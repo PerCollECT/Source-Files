@@ -148,6 +148,7 @@ function initGraph() {
       let textd3 = d3.select(this);
       if (textd3.node().getComputedTextLength() < width) return;
       let words = textd3.text().split(" ").reverse();
+      let wordsCopy = [...words];
       // split into lines
       let word;
       let line = [];
@@ -156,6 +157,24 @@ function initGraph() {
       let x = textd3.attr('x');
       let y = textd3.attr('y');
       let dy = 0;
+      // Get number of lines before wrapping to adjust the y position of the text
+      let tempLine = [];
+      let lineCount = 0;
+      while (word = wordsCopy.pop()) {
+          tempLine.push(word);
+          textd3.text(tempLine.join(' '));
+          if (textd3.node().getComputedTextLength() > width) {
+              tempLine.pop();
+              tempLine = [word];
+              lineCount++;
+          }
+      }
+      if (tempLine.length > 0) {
+          lineCount++;
+      }
+      y = (nodeHeight - lineCount * 12) / 2;
+      word = ""
+      // Add tspan elements for each line to wrap text
       let tspan = textd3.text(null)
           .append('tspan')
           .attr('x', x)
@@ -344,7 +363,6 @@ function drawTree(drawData,state)
         .append("text")
         .attr("y", nodeHeight / 2)
         .attr("x", 13)
-        .attr("dy", ".35em")
         .text((d) => d.data.title)
         .call(wrapNodeText, maxTextLength)
         .on("click", onNodeClicked);
