@@ -280,13 +280,13 @@ body {
 .content .legend {
   width: auto;
   height: auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   padding-left: 10px;
   margin-left: var(--legend-margin-lr);
   position:fixed;
   top:4px;
-  right:20px;
+  right:5px;
   user-select: none;
   background-color: white;
   border: 1px solid var(--main-color);
@@ -298,7 +298,7 @@ body {
   height: 16px;
   text-align: center;
   font-size: 16px;
-  line-height:13px;
+  line-height:16px;
   color: #fff;
   border-radius: 50%;
   border: 1px solid var(--main-color);
@@ -326,11 +326,19 @@ body {
   float:left;
 }
 
+.legend .legend-title{
+  font-size: 18px;
+}
+
+.legend .legend-separator{
+  height: 25px;
+}
+
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:150px;
-  right:20px;
+  top:125px;
+  right:5px;
 }
 
 .content #expand_tree_btn{
@@ -487,7 +495,7 @@ body {
   width: var(--sidenav-width);
 }
 
-.tree_links_container a{
+.tree_links_container a {
   padding: 8px 8px 6px 16px;
   text-align: left;
   font-size: 14px;
@@ -495,4 +503,94 @@ body {
   display: block;
   cursor: pointer;
   text-decoration: none;
+}
+
+
+@media (max-width: 1300px) {
+  .content .legend {
+    width: 350px;
+    padding-left: 5px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  .legend .circle {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+    line-height:12px;
+  }
+  .legend .circle-text {
+    height: 12px;
+    margin-left: 3px;
+    margin-right: 8px;
+    font-size: 9px;
+    line-height: 15px;
+  }
+  .legend .rectangle {
+    width: 16px;
+    height: 14px;
+    font-size: 10px;
+    line-height: 12px;
+  }
+  .content .tree_btn{
+    width: 75px;
+    height: 30px;
+    margin-bottom: 7px;
+    line-height: 27px;
+    font-size: 10px;
+    border-radius: 7px;
+    border:1px solid var(--main-color);
+  }
+  .content .tree_buttons_container{
+    top:100px;
+  }
+  .legend .legend-separator{
+    height: 20px;
+  }
+}
+
+@media (max-width: 750px) {
+  .content .legend {
+    width: 280px;
+    padding-left: 3px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .legend .legend-title{
+    font-size: 14px;
+    margin-left: 2px;
+  }
+  .legend .circle {
+    width: 10px;
+    height: 10px;
+    font-size: 10px;
+    line-height:10px;
+  }
+  .legend .circle-text {
+    height: 8px;
+    margin-left: 2px;
+    margin-right: 5px;
+    font-size: 7px;
+    line-height: 12px;
+  }
+  .legend .rectangle {
+    width: 12px;
+    height: 10px;
+    font-size: 7px;
+    line-height: 10px;
+  }
+  .content .tree_btn{
+    width: 50px;
+    height: 20px;
+    margin-bottom: 5px;
+    line-height: 18px;
+    font-size: 6px;
+    border-radius: 5px;
+  }
+  .content .tree_buttons_container{
+    top:75px;
+  }
+  .legend .legend-separator{
+    height: 15px;
+  }
 }

@@ -141,18 +141,23 @@ function addLegend() {
   let treeButtonsNames = ["Expand node children", "Collapse node children"];
   let text = "";
   $("<div></div>")
+      .addClass("legend-title")
       .html("Legend")
       .css("font-weight","bold")
-      .css("font-size","18px")
+      // .css("font-size","18px")
       .css("line-height","10px")
       .appendTo($("#legend"));
-  $("<br>")
+  $("<div></div>")
+      .addClass("legend-separator")
+      .css("display", "block")
       .appendTo($("#legend"));
   for (let i = 0; i < colors.length; ++i) {
     if(i === 3)
     {
       text = "+"
-      $("<br>")
+      $("<div></div>")
+          .addClass("legend-separator")
+          .css("display", "block")
           .appendTo($("#legend"));
     }
     $("<div></div>")
