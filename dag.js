@@ -339,8 +339,9 @@ function drawTree(drawData,state)
 
 
 
-    // Add text box for FMCW tag
-    nodes.append("rect")
+    // Add text box for FMCW tag, if the attribute FMCWspecific is true
+    nodes.filter(d => d.data.FMCWspecific)
+        .append("rect")
         .attr("width", 60)
         .attr("height", 20)
         .attr("stroke-width",1.5)
@@ -350,7 +351,8 @@ function drawTree(drawData,state)
         .attr("y", nodeHeight - 20)
         .style("fill", "lightblue");
 
-    nodes.append("text")
+    nodes.filter(d => d.data.FMCWspecific)
+        .append("text")
         .attr("x", nodeWidth - 60 + 30)
         .attr("y", nodeHeight - 20 + 15)
         .attr("dy", "0.1em")
