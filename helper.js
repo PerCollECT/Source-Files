@@ -146,7 +146,6 @@ function addLegend() {
       .addClass("legend-title")
       .html("Legend")
       .css("font-weight","bold")
-      // .css("font-size","18px")
       .css("line-height","10px")
       .appendTo($("#legend"));
   $("<div></div>")
