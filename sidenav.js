@@ -69,9 +69,6 @@ function addSideNavLinks() {
     });
 
     // after last link, add some space
-    // $("<div></div>")
-    //     .outerHeight($("#side_nav_links").outerHeight() * 0.35)
-    //     .appendTo($("#side_nav_links"));
 }
 
 /**
