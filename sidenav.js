@@ -67,8 +67,6 @@ function addSideNavLinks() {
             btn.toggleClass("active");
         }
     });
-
-    // after last link, add some space
 }
 
 /**
