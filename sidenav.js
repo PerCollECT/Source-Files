@@ -41,15 +41,20 @@ function addSideNavLinks() {
 
             this.classList.toggle("active");
             var dropdownContent = this.nextElementSibling;
+            var caretIcon = this.querySelector("i"); // Get the caret icon element
 
             if (dropdownContent.style.display === "block") {
                 dropdownContent.style.display = "none";
                 let index = localALinks.indexOf(this.innerText)
                 localALinks.splice(index, 1);
+                caretIcon.classList.remove("fa-caret-up"); // Remove the up arrow class
+                caretIcon.classList.add("fa-caret-down"); // Add the down arrow class
 
             } else {
                 dropdownContent.style.display = "block";
                 localALinks.push(this.innerText);
+                caretIcon.classList.remove("fa-caret-down"); // Remove the down arrow class
+                caretIcon.classList.add("fa-caret-up"); // Add the up arrow class
             }
             keepDataInSessionStorage(repoName + "ActiveLinks", JSON.stringify(localALinks));
         });
@@ -62,11 +67,6 @@ function addSideNavLinks() {
             btn.toggleClass("active");
         }
     });
-
-    // after last link, add some space
-    $("<div></div>")
-        .outerHeight($("#side_nav_links").outerHeight() * 0.35)
-        .appendTo($("#side_nav_links"));
 }
 
 /**
@@ -129,12 +129,15 @@ function addTreesLinks()
     const treesLinksContainer = document.createElement('div');
     treesLinksContainer.classList.add('tree_links_container');
 
-    const sideNav = document.getElementById('side_nav_links');
-    const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
-    const content = document.getElementsByClassName('content');
+    const horizontalLine = document.createElement('hr');
+    horizontalLine.classList.add('h_line');
+
+    const sideNav = document.getElementById('side_nav');
+    sideNav.appendChild(horizontalLine)
+
     let repos = ["LidarLimbs", "RadarRami", "UltrasonicUnderwood", "CameraCopse"];
     repos.forEach(function(repo){
-        if(repo !== currentTreeTitle) {
+        if(repo !== repoName) {
             let treeElement = document.createElement('a');
             let treeLink = document.createTextNode(repo);
             treeElement.appendChild(treeLink);

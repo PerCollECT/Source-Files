@@ -114,18 +114,6 @@ function initGraph() {
   return JSON.parse(allText);
  }
 
- /**
-  * Performs action after the info label is clicked
-  * @param {Object} d clicked info
-  */
- function onNodeInfoClicked(d) {
-    let currentNodeId = d.currentTarget.__data__.data.id;
-    let node = getNodeByTitle(d.currentTarget.__data__.data.title);
-    $("#info_box").empty();
-    addNodeInfos(node, "preview");
-    updateGraphPlot(currentNodeId);
- }
-
 /**
  * Performs action after a node is clicked
  * @param {Object} d clicked info
@@ -148,6 +136,7 @@ function initGraph() {
       let textd3 = d3.select(this);
       if (textd3.node().getComputedTextLength() < width) return;
       let words = textd3.text().split(" ").reverse();
+      let wordsCopy = [...words];
       // split into lines
       let word;
       let line = [];
@@ -156,6 +145,24 @@ function initGraph() {
       let x = textd3.attr('x');
       let y = textd3.attr('y');
       let dy = 0;
+      // Get number of lines before wrapping to adjust the y position of the text
+      let tempLine = [];
+      let lineCount = 0;
+      while (word = wordsCopy.pop()) {
+          tempLine.push(word);
+          textd3.text(tempLine.join(' '));
+          if (textd3.node().getComputedTextLength() > width) {
+              tempLine.pop();
+              tempLine = [word];
+              lineCount++;
+          }
+      }
+      if (tempLine.length > 0) {
+          lineCount++;
+      }
+      y = (nodeHeight - lineCount * 12) / 2;
+      word = ""
+      // Add tspan elements for each line to wrap text
       let tspan = textd3.text(null)
           .append('tspan')
           .attr('x', x)
@@ -319,9 +326,9 @@ function drawTree(drawData,state)
         .attr("rx", function (d) {
             switch (d.data.nodeType) {
                 case "designParameter":
-                    return 40;
+                    return 20;
                 case "systemIndependent":
-                    return 40;
+                    return 20;
                 default:
                     return 2;
             }
@@ -342,28 +349,35 @@ function drawTree(drawData,state)
     // Add text to nodes
     nodes
         .append("text")
-        .attr("y", nodeHeight / 2)
+        .attr("y", 30)
         .attr("x", 13)
-        .attr("dy", ".35em")
         .text((d) => d.data.title)
         .call(wrapNodeText, maxTextLength)
         .on("click", onNodeClicked);
 
-    // Add information icon
-    nodes.append("circle")
-        .attr("class", "iButton")
-        .attr("cx", nodeWidth-20)
-        .attr("cy", 20)
-        .attr("r", 15)
-        .on("mouseover", function () { d3.select(this).attr("r", 20); })
-        .on("mouseout", function () { d3.select(this).attr("r", 15); })
-        .on("click", onNodeInfoClicked);
 
-    nodes.append("text")
-        .attr("class", "iText")
-        .attr("y", 26.5)
-        .attr("x", nodeWidth - 20 - (5 / 2))
-        .html("i");
+
+    // Add text box for FMCW tag, if the attribute FMCWspecific is true
+    nodes.filter(d => d.data.FMCWspecific)
+        .append("rect")
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("stroke-width",1.5)
+        .attr("rx", 2)
+        .attr("ry", 2)
+        .attr("x", nodeWidth - 60)
+        .attr("y", nodeHeight - 20)
+        .style("fill", "lightblue");
+
+    nodes.filter(d => d.data.FMCWspecific)
+        .append("text")
+        .attr("x", nodeWidth - 60 + 30)
+        .attr("y", nodeHeight - 20 + 15)
+        .attr("dy", "0.1em")
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .text("FMCW")
+        .on("click", onNodeClicked);
 
     // Filter nodes with no parent to add parents expand/collapse button
     let rootsNodes = nodes.filter(function(node){
@@ -380,8 +394,8 @@ function drawTree(drawData,state)
 
     rootsNodes.append("text")
         .attr("class", "iText")
-        .attr("x", nodeWidth/2 - 7)
-        .attr("y",8.5)
+        .attr("x", nodeWidth/2 - 9)
+        .attr("y",7)
         .html("+")
 
     // Filter nodes with no children to add expand/collapse button
@@ -452,10 +466,10 @@ function drawTree(drawData,state)
     leavesNodes.append("text")
         .attr("class", "iText")
         .attr("x",function (d) {
-            return nodeWidth/2 - 20;
+            return nodeWidth/2 - 21;
         })
         .attr("y",function (d) {
-                    return nodeHeight + 8.5;
+                    return nodeHeight + 7;
         })
         .html(function (d) {
             return "+";
