@@ -326,6 +326,19 @@ body {
   float:left;
 }
 
+.legend .rectangle.fmcw {
+  background: lightblue;
+  border: 1.5px solid #000000;
+  width: 42px;
+  height: 16px;
+  border-radius: 2px;
+  color: black;
+  font-weight: bold;
+  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
 .legend .legend-title{
   font-size: 18px;
 }
@@ -337,8 +350,12 @@ body {
 /* expand/collapse tree  */
 .content .tree_buttons_container{
   position:fixed;
-  top:160px;
-  right:20px;
+  top:110px;
+  right:5px;
+}
+
+[data-tree-title="LidarLimbs"] .tree_buttons_container {
+  top:135px;
 }
 
 .content #expand_tree_btn{
@@ -532,6 +549,11 @@ body {
     font-size: 10px;
     line-height: 12px;
   }
+  .legend .rectangle.fmcw {
+    width: 34px;
+    height: 13px;
+    font-size: 9px;
+  }
   .content .tree_btn{
     width: 75px;
     height: 30px;
@@ -542,8 +564,12 @@ body {
     border:1px solid var(--main-color);
   }
   .content .tree_buttons_container{
-    top:100px;
+    top:90px;
   }
+  [data-tree-title="LidarLimbs"] .tree_buttons_container {
+    top:115px;
+  }
+  
   .legend .legend-separator{
     height: 20px;
   }
@@ -579,6 +605,12 @@ body {
     font-size: 7px;
     line-height: 10px;
   }
+  .legend .rectangle.fmcw {
+    width: 25px;
+    height: 10px;
+    font-size: 7px;
+  }
+
   .content .tree_btn{
     width: 50px;
     height: 20px;
@@ -588,8 +620,12 @@ body {
     border-radius: 5px;
   }
   .content .tree_buttons_container{
-    top:75px;
+    top:70px;
   }
+  [data-tree-title="LidarLimbs"] .tree_buttons_container {
+    top:95px;
+  }
+
   .legend .legend-separator{
     height: 15px;
   }

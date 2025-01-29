@@ -194,21 +194,12 @@ function addLegend() {
   }
   // FMCW specific node for Lidar tree
   const currentTreeTitle = document.getElementById('head').getElementsByTagName("a")[0].innerHTML;
+  document.documentElement.setAttribute("data-tree-title", currentTreeTitle);
   if (currentTreeTitle == "LidarLimbs") {
     $("<br>").appendTo($("#legend"));
     $("<div></div>")
-        .addClass("rectangle")
-        .css("background", "lightblue")
-        .css("border", "1.5px solid ${colors[3]}")
-        .css("width", "42px")
-        .css("height", "16px")
-        .css("border-radius", "2px")
+        .addClass("rectangle fmcw")
         .html("FMCW")
-        .css("color", "black")
-        .css("font-weight", "bold")
-        .css("font-size","12px")
-        .css("align-items", "center")
-        .css("justify-content", "center")
         .appendTo($("#legend"));
     $("<div></div>")
         .addClass("circle-text")
